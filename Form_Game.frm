@@ -2,7 +2,7 @@ VERSION 5.00
 Begin VB.Form Form_Game 
    AutoRedraw      =   -1  'True
    BorderStyle     =   1  'Fixed Single
-   Caption         =   "HRD Game v1.1 by Dnomd343"
+   Caption         =   "HRD Game v1.2 by Dnomd343"
    ClientHeight    =   7305
    ClientLeft      =   45
    ClientTop       =   690
@@ -14,6 +14,14 @@ Begin VB.Form Form_Game
    ScaleHeight     =   7305
    ScaleWidth      =   7290
    StartUpPosition =   2  '屏幕中心
+   Begin VB.CommandButton Command_Rand_Case 
+      Caption         =   "随机生成布局"
+      Height          =   495
+      Left            =   5760
+      TabIndex        =   8
+      Top             =   2160
+      Width           =   1335
+   End
    Begin VB.CommandButton Command_Select_Case 
       Caption         =   "选择经典布局"
       Height          =   495
@@ -40,7 +48,7 @@ Begin VB.Form Form_Game
       Height          =   495
       Left            =   5760
       TabIndex        =   1
-      Top             =   2160
+      Top             =   2760
       Width           =   1335
    End
    Begin VB.Timer Timer_Get_Time 
@@ -130,6 +138,7 @@ Dim mouse_x As Long, mouse_y As Long, mouse_button As Integer
 Dim last_move As Integer, move_times As Integer
 Dim total_steps As Long, total_time As Long
 Dim Start_Code As String
+
 Private Sub Menu_Debug_Mode_Click()
   Menu_Debug_Mode.Checked = Not Menu_Debug_Mode.Checked
   If Menu_Debug_Mode.Checked = True Then debug_mode = True Else debug_mode = False
@@ -246,11 +255,12 @@ End Sub
 Private Sub Command_Create_Case_Click()
   Form_Creator.Show 1
 End Sub
-
 Private Sub Command_Select_Case_Click()
   Form_Classic_Cases.Show 1
 End Sub
-
+Private Sub Command_Rand_Case_Click()
+  Form_Rand_Case.Show 1
+End Sub
 Private Sub Command_Reset_Click()
   total_steps = 0
   total_time = 0
@@ -576,7 +586,7 @@ Private Function Get_Code() As String
   Dim temp(20) As Boolean
   Dim Table(20) As Integer
   Dim dat(1 To 12) As Integer
-  Dim Code As String
+  Dim code As String
   Dim i As Integer, addr As Integer, style As Integer, num As Integer
   For i = 0 To 19
     temp(i) = False
@@ -603,9 +613,9 @@ Private Function Get_Code() As String
   temp(Block(0).address + 4) = True
   temp(Block(0).address + 5) = True
   If Block(0).address < 10 Then
-    Code = Code & Block(0).address
+    code = code & Block(0).address
   Else
-    Code = Code & Chr(Block(0).address + 55)
+    code = code & Chr(Block(0).address + 55)
   End If
   addr = 0
   num = 1
@@ -639,16 +649,16 @@ Private Function Get_Code() As String
   For i = 1 To 6
     num = dat(i * 2 - 1) * 4 + dat(i * 2)
     If num < 10 Then
-      Code = Code & num
+      code = code & num
     Else
-      Code = Code & Chr(num + 55)
+      code = code & Chr(num + 55)
     End If
   Next i
-  Get_Code = Code
+  Get_Code = code
 End Function
-Private Sub Analyse(Code As String)
+Private Sub Analyse(code As String)
   Dim m As Integer, addr As Integer, x As Integer, y As Integer
-  Call Analyse_Code(Code)
+  Call Analyse_Code(code)
   For x = 1 To 4
     For y = 1 To 5
       Block_index(x, y) = 10
@@ -737,7 +747,7 @@ Private Function Check() As Boolean
   Next i
   If j <> 2 Then Check = False
 End Function
-Private Sub Analyse_Code(Code As String)
+Private Sub Analyse_Code(code As String)
   On Error Resume Next
   Dim temp(1 To 12) As Integer
   Dim i, addr, style As Integer
@@ -746,7 +756,7 @@ Private Sub Analyse_Code(Code As String)
   Dim num As Integer, b1 As Integer, b2 As Integer
   Dim dat As String
   For i = 1 To 6
-    dat = Mid(Code, i + 1, 1)
+    dat = Mid(code, i + 1, 1)
     If Asc(dat) >= 48 And Asc(dat) <= 57 Then num = Int(dat)
     If Asc(dat) >= 65 And Asc(dat) <= 70 Then num = Asc(dat) - 55
     b1 = num Mod 4
@@ -762,7 +772,7 @@ Private Sub Analyse_Code(Code As String)
     Block(i).address = 69
     Block(i).style = 69
   Next i
-  dat = Left(Code, 1)
+  dat = Left(code, 1)
   If Asc(dat) >= 48 And Asc(dat) <= 57 Then num = Int(dat)
   If Asc(dat) >= 65 And Asc(dat) <= 70 Then num = Asc(dat) - 55
   Block(0).address = num
