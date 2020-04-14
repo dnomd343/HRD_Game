@@ -13,6 +13,14 @@ Begin VB.Form Form_Solution
    ScaleHeight     =   5145
    ScaleWidth      =   5295
    StartUpPosition =   2  '屏幕中心
+   Begin VB.CommandButton Command_Output 
+      Caption         =   "导出数据"
+      Height          =   470
+      Left            =   3720
+      TabIndex        =   7
+      Top             =   4560
+      Width           =   1455
+   End
    Begin VB.Timer Timer_Play 
       Enabled         =   0   'False
       Interval        =   1000
@@ -23,7 +31,7 @@ Begin VB.Form Form_Solution
       Caption         =   "＞︱"
       Height          =   470
       Left            =   3000
-      TabIndex        =   5
+      TabIndex        =   6
       Top             =   4560
       Width           =   615
    End
@@ -31,7 +39,7 @@ Begin VB.Form Form_Solution
       Caption         =   "＞"
       Height          =   470
       Left            =   2400
-      TabIndex        =   4
+      TabIndex        =   5
       Top             =   4560
       Width           =   615
    End
@@ -39,7 +47,7 @@ Begin VB.Form Form_Solution
       Caption         =   "播放"
       Height          =   470
       Left            =   1320
-      TabIndex        =   3
+      TabIndex        =   4
       Top             =   4560
       Width           =   1095
    End
@@ -47,7 +55,7 @@ Begin VB.Form Form_Solution
       Caption         =   "＜"
       Height          =   470
       Left            =   720
-      TabIndex        =   2
+      TabIndex        =   3
       Top             =   4560
       Width           =   615
    End
@@ -55,17 +63,17 @@ Begin VB.Form Form_Solution
       Caption         =   "︱＜"
       Height          =   470
       Left            =   120
-      TabIndex        =   1
+      TabIndex        =   2
       Top             =   4560
       Width           =   615
    End
    Begin VB.ListBox List_Solution 
-      Height          =   4740
+      Height          =   4200
       ItemData        =   "Form_Solution.frx":0000
       Left            =   3720
       List            =   "Form_Solution.frx":0002
-      TabIndex        =   0
-      Top             =   290
+      TabIndex        =   1
+      Top             =   285
       Width           =   1455
    End
    Begin VB.Timer Timer_Get_Data 
@@ -77,7 +85,7 @@ Begin VB.Form Form_Solution
       AutoSize        =   -1  'True
       Height          =   180
       Left            =   0
-      TabIndex        =   6
+      TabIndex        =   0
       Top             =   80
       Width           =   90
    End
@@ -88,12 +96,8 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
-Private Type Case_Block
-  address As Integer
-  style As Integer
-End Type
 Dim wait_data As Boolean
-Dim Block(0 To 9) As Case_Block
+Dim Block(0 To 9) As Block_struct
 Dim start_x As Integer, start_y As Integer, square_width As Integer, gap As Integer
 Private Sub Form_Load()
   start_x = 135
@@ -107,7 +111,7 @@ Private Sub Form_Load()
   End If
   wait_file_name = start_code & ".txt"
   If Dir(start_code & ".txt") <> "" Then Kill start_code & ".txt"
-  Shell "Engine.exe -q " & start_code
+  Shell "Engine.exe -q " & start_code, vbHide
   wait_cancel = False
   waiting = True
   wait_data = True
@@ -160,6 +164,9 @@ Private Sub Timer_Get_Data_Timer()
       Call Get_Data(start_code & ".txt")
     End If
   End If
+End Sub
+Private Sub Command_Output_Click()
+  MsgBox "还没做好呢QAQ", , "> _ <"
 End Sub
 Private Sub Get_Data(file_name As String)
   Dim temp As String, i As Integer, num As Integer

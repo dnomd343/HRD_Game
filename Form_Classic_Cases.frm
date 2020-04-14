@@ -25,7 +25,7 @@ Begin VB.Form Form_Classic_Cases
       Alignment       =   2  'Center
       BeginProperty Font 
          Name            =   "Î¢ÈíÑÅºÚ"
-         Size            =   15.75
+         Size            =   18
          Charset         =   134
          Weight          =   400
          Underline       =   0   'False
@@ -43,14 +43,14 @@ Begin VB.Form Form_Classic_Cases
       Caption         =   "ËÑË÷"
       Height          =   255
       Left            =   2280
-      TabIndex        =   3
+      TabIndex        =   2
       Top             =   480
       Width           =   735
    End
    Begin VB.TextBox Text_Search 
       Height          =   270
       Left            =   120
-      TabIndex        =   2
+      TabIndex        =   1
       Top             =   480
       Width           =   2055
    End
@@ -70,14 +70,16 @@ Begin VB.Form Form_Classic_Cases
       Height          =   300
       Left            =   120
       Style           =   2  'Dropdown List
-      TabIndex        =   1
+      TabIndex        =   0
       Top             =   120
       Width           =   2895
    End
    Begin VB.ListBox List_Cases 
       Height          =   3840
+      ItemData        =   "Form_Classic_Cases.frx":0000
       Left            =   120
-      TabIndex        =   0
+      List            =   "Form_Classic_Cases.frx":0002
+      TabIndex        =   3
       Top             =   840
       Width           =   2895
    End
@@ -88,12 +90,8 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
-Private Type Case_Block
-  address As Integer
-  style As Integer
-End Type
 Dim tip As String
-Dim Block(0 To 9) As Case_Block
+Dim Block(0 To 9) As Block_struct
 Dim start_x As Integer, start_y As Integer, square_width As Integer, gap As Integer
 Private Sub Form_Load()
   start_x = 3200
@@ -115,17 +113,14 @@ Private Sub Command_Confirm_Click()
   Unload Form_Classic_Cases
 End Sub
 Private Sub List_Cases_Click()
-  Dim temp As String
   Text_Tip = "(" & List_Cases.ListIndex + 1 & "/" & List_Cases.ListCount & ")"
-  temp = List_Cases.List(List_Cases.ListIndex)
-  Text_Code = Mid(temp, Len(temp) - 7, 7)
+  Text_Code = Mid(List_Cases.List(List_Cases.ListIndex), Len(List_Cases.List(List_Cases.ListIndex)) - 7, 7)
   Call Analyse_Code(Text_Code)
   Call Output_Graph
 End Sub
 Private Sub Command_Search_Click()
-  Dim i As Integer, j As Integer, last_select As Integer
+  Dim i As Integer, j As Integer, last_select As Integer, searching As Boolean
   Dim temp() As String
-  Dim searching As Boolean
   ReDim temp(0)
   If Text_Search = "" Then Exit Sub
   last_select = Combo_Cases.ListIndex
@@ -144,6 +139,7 @@ Private Sub Command_Search_Click()
       End If
     Next i
   Next j
+  If debug_mode = True Then MsgBox "last_select=" & last_select & vbCrLf & "searching=" & searching & vbCrLf & "temp->" & UBound(temp), , "Debug"
   List_Cases.Clear
   Combo_Cases.AddItem "ËÑË÷½á¹û"
   Combo_Cases.ListIndex = Combo_Cases.ListCount - 1
@@ -154,7 +150,7 @@ Private Sub Command_Search_Click()
       Combo_Cases.RemoveItem Combo_Cases.ListCount - 1
       Combo_Cases.ListIndex = last_select
     End If
-    MsgBox "No Result!"
+    MsgBox "ÕÒ²»µ½ÍÛ", , "> _ <"
     Exit Sub
   End If
   For i = 1 To UBound(temp)
@@ -186,10 +182,10 @@ Private Sub Get_Cases(index As Integer)
       Line Input #1, temp
       If temp = "[Cases]" Then
         If num = index Then
-        Line Input #1, temp
-        Line Input #1, temp
-        tip = Right(temp, Len(temp) - 4)
-        Text_Tip = tip
+          Line Input #1, temp
+          Line Input #1, temp
+          tip = Right(temp, Len(temp) - 4)
+          Text_Tip = tip
 reinput:
           If EOF(1) = False Then
             Line Input #1, temp
@@ -217,13 +213,13 @@ Private Sub Get_Cases_title()
   Close #1
 End Sub
 Private Sub Output_Graph()
-  Dim m, x, y As Integer
+  Dim m, X, Y As Integer
   Dim width As Integer, height As Integer
   Print_Block start_x, start_y, square_width * 4 + gap * 5, square_width * 5 + gap * 6, case_line_width, case_color, case_line_color
   For m = 0 To 9
     If Block(m).address <> 25 Then
-      x = (Block(m).address Mod 4) * (square_width + gap) + gap + start_x
-      y = Int(Block(m).address / 4) * (square_width + gap) + gap + start_y
+      X = (Block(m).address Mod 4) * (square_width + gap) + gap + start_x
+      Y = Int(Block(m).address / 4) * (square_width + gap) + gap + start_y
       If Block(m).style = 0 Or Block(m).style = 1 Then
         width = square_width * 2 + gap
       Else
@@ -234,7 +230,7 @@ Private Sub Output_Graph()
       Else
         height = square_width
       End If
-      Print_Block x, y, width, height, block_line_width, block_color, block_line_color
+      Print_Block X, Y, width, height, block_line_width, block_color, block_line_color
     End If
   Next m
 End Sub
@@ -246,7 +242,7 @@ Private Sub Print_Block(print_start_x, print_start_y, print_width, print_height,
   Line (print_start_x, print_start_y)-(print_start_x + print_width, print_start_y + print_height), print_color, B
   Line (print_start_x, print_start_y)-(print_start_x + print_width, print_start_y + print_height), print_line_color, B
 End Sub
-Private Sub Analyse_Code(Code As String)
+Private Sub Analyse_Code(code As String)
   On Error Resume Next
   Dim temp(1 To 12) As Integer
   Dim i, addr, style As Integer
@@ -255,7 +251,7 @@ Private Sub Analyse_Code(Code As String)
   Dim num As Integer, b1 As Integer, b2 As Integer
   Dim dat As String
   For i = 1 To 6
-    dat = Mid(Code, i + 1, 1)
+    dat = Mid(code, i + 1, 1)
     If Asc(dat) >= 48 And Asc(dat) <= 57 Then num = Int(dat)
     If Asc(dat) >= 65 And Asc(dat) <= 70 Then num = Asc(dat) - 55
     b1 = num Mod 4
@@ -271,7 +267,7 @@ Private Sub Analyse_Code(Code As String)
     Block(i).address = 69
     Block(i).style = 69
   Next i
-  dat = Left(Code, 1)
+  dat = Left(code, 1)
   If Asc(dat) >= 48 And Asc(dat) <= 57 Then num = Int(dat)
   If Asc(dat) >= 65 And Asc(dat) <= 70 Then num = Asc(dat) - 55
   Block(0).address = num
@@ -316,4 +312,3 @@ Private Sub Analyse_Code(Code As String)
   Next i
 err:
 End Sub
-

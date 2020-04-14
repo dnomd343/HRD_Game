@@ -83,19 +83,15 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
-Private Type Case_Block
-  address As Integer
-  style As Integer
-End Type
-Dim Block(0 To 9) As Case_Block
+Dim Block(0 To 9) As Block_struct
 Dim Exist(1 To 4, 1 To 5) As Boolean
 Dim Block_index(1 To 4, 1 To 5) As Integer
 Dim start_x As Integer, start_y As Integer, square_width As Integer, gap As Integer
 Dim x_split(0 To 4) As Integer, y_split(0 To 5) As Integer
+Dim limit(-1 To 1, -1 To 1) As Boolean
 Dim click_mouse_x As Integer, click_mouse_y As Integer
 Dim click_x As Integer, click_y As Integer, mouse_button As Integer, print_now As Boolean
 Dim delta_x As Integer, delta_y As Integer, locked_x As Integer, locked_y As Integer
-Dim limit(-1 To 1, -1 To 1) As Boolean
 Private Sub Form_Load()
   start_x = 120
   start_y = 120
@@ -485,10 +481,10 @@ Private Function Check() As Boolean
   Next i
   Check = True
   If Block(0).style <> 0 Or Block(0).address > 20 Or Block(0).address < 0 Then
-    Check = False
+    Check = False: GoTo check_err
   Else
     addr = Block(0).address
-    If addr > 14 Or (addr Mod 4 = 3) Then Check = False
+    If addr > 14 Or (addr Mod 4 = 3) Then Check = False: GoTo check_err
     temp(addr) = True
     temp(addr + 1) = True
     temp(addr + 4) = True
@@ -496,20 +492,20 @@ Private Function Check() As Boolean
   End If
   For i = 1 To 5
     If Block(i).address > 20 Or Block(i).address < 0 Then
-      Check = False
+      Check = False: GoTo check_err
     ElseIf Block(i).style <> 1 And Block(i).style <> 2 Then
-      Check = False
+      Check = False: GoTo check_err
     Else
       addr = Block(i).address
       If Block(i).style = 1 Then
-        If addr > 18 Or (addr Mod 4 = 3) Then Check = False
-        If temp(addr) = True Or temp(addr + 1) = True Then Check = False
+        If addr > 18 Or (addr Mod 4 = 3) Then Check = False: GoTo check_err
+        If temp(addr) = True Or temp(addr + 1) = True Then Check = False: GoTo check_err
         temp(addr) = True
         temp(addr + 1) = True
       End If
       If Block(i).style = 2 Then
-        If addr > 15 Then Check = False
-        If temp(addr) = True Or temp(addr + 4) = True Then Check = False
+        If addr > 15 Then Check = False: GoTo check_err
+        If temp(addr) = True Or temp(addr + 4) = True Then Check = False: GoTo check_err
         temp(addr) = True
         temp(addr + 4) = True
       End If
@@ -517,11 +513,11 @@ Private Function Check() As Boolean
   Next i
   For i = 6 To 9
     If Block(i).style <> 3 Or Block(i).address > 20 Or Block(i).address < 0 Then
-      Check = False
+      Check = False: GoTo check_err
     Else
       addr = Block(i).address
-      If addr > 19 Then Check = False
-      If temp(addr) = True Then Check = False
+      If addr > 19 Then Check = False: GoTo check_err
+      If temp(addr) = True Then Check = False: GoTo check_err
       temp(addr) = True
     End If
   Next i
@@ -529,7 +525,8 @@ Private Function Check() As Boolean
   For i = 0 To 19
     If temp(i) = False Then j = j + 1
   Next i
-  If j <> 2 Then Check = False
+  If j <> 2 Then Check = False: GoTo check_err
+check_err:
 End Function
 Private Function Get_Code() As String
   On Error Resume Next
@@ -609,6 +606,7 @@ End Function
 Private Sub Analyse(code As String)
   Dim m As Integer, addr As Integer, X As Integer, Y As Integer
   Call Analyse_Code(code)
+  If Check = False Then Call Case_init: Exit Sub
   For X = 1 To 4
     For Y = 1 To 5
       Block_index(X, Y) = 10

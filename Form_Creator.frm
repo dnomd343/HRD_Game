@@ -3,39 +3,47 @@ Begin VB.Form Form_Creator
    AutoRedraw      =   -1  'True
    BorderStyle     =   1  'Fixed Single
    Caption         =   "自定义华容道布局"
-   ClientHeight    =   8115
+   ClientHeight    =   6675
    ClientLeft      =   45
    ClientTop       =   390
-   ClientWidth     =   5655
+   ClientWidth     =   4590
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
-   ScaleHeight     =   8115
-   ScaleWidth      =   5655
+   ScaleHeight     =   6675
+   ScaleWidth      =   4590
    StartUpPosition =   2  '屏幕中心
    Begin VB.CommandButton Command_Confirm 
       Caption         =   "确定"
       Height          =   495
-      Left            =   4080
+      Left            =   3240
       TabIndex        =   5
-      Top             =   7440
-      Width           =   1335
+      Top             =   6030
+      Width           =   1215
+   End
+   Begin VB.CommandButton Command_Print 
+      Caption         =   "解析编码"
+      Height          =   495
+      Left            =   3240
+      TabIndex        =   2
+      Top             =   5550
+      Width           =   1215
    End
    Begin VB.CommandButton Command_Clear 
       Caption         =   "清除"
       Height          =   495
-      Left            =   1560
+      Left            =   1320
       TabIndex        =   4
-      Top             =   7440
-      Width           =   2535
+      Top             =   6030
+      Width           =   1935
    End
    Begin VB.CommandButton Command_Mirror 
       Caption         =   "镜像"
       Height          =   495
-      Left            =   240
+      Left            =   120
       TabIndex        =   3
-      Top             =   7440
-      Width           =   1335
+      Top             =   6030
+      Width           =   1215
    End
    Begin VB.TextBox Text_Code 
       Alignment       =   2  'Center
@@ -48,27 +56,20 @@ Begin VB.Form Form_Creator
          Italic          =   0   'False
          Strikethrough   =   0   'False
       EndProperty
-      Height          =   495
-      Left            =   1560
+      Height          =   570
+      Left            =   1320
+      MaxLength       =   10
       TabIndex        =   0
-      Top             =   6960
-      Width           =   2535
+      Top             =   5550
+      Width           =   1935
    End
    Begin VB.CommandButton Command_Get_Code 
       Caption         =   "生成编码"
       Height          =   495
-      Left            =   240
+      Left            =   120
       TabIndex        =   1
-      Top             =   6960
-      Width           =   1335
-   End
-   Begin VB.CommandButton Command_Print 
-      Caption         =   "解析编码"
-      Height          =   495
-      Left            =   4080
-      TabIndex        =   2
-      Top             =   6960
-      Width           =   1335
+      Top             =   5550
+      Width           =   1215
    End
    Begin VB.Timer Timer_Debug 
       Interval        =   200
@@ -76,12 +77,12 @@ Begin VB.Form Form_Creator
       Top             =   0
    End
    Begin VB.TextBox Text_Debug 
-      Height          =   7760
-      Left            =   5650
+      Height          =   6405
+      Left            =   4590
       MultiLine       =   -1  'True
       TabIndex        =   6
-      Top             =   180
-      Width           =   3495
+      Top             =   135
+      Width           =   3615
    End
 End
 Attribute VB_Name = "Form_Creator"
@@ -90,25 +91,27 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
-Private Type Case_Block
-  address As Integer
-  style As Integer
-End Type
-Dim Block(0 To 9) As Case_Block
+Dim Block(0 To 9) As Block_struct
 Dim Exist(1 To 4, 1 To 5) As Boolean
 Dim Block_index(1 To 4, 1 To 5) As Integer
-Dim print_now As Boolean
-Dim click_x As Integer, click_y As Integer
-Dim click_block_x As Integer, click_block_y As Integer
-Dim block_start_x As Integer, block_start_y As Integer, block_width As Integer, block_height As Integer
 Dim start_x As Integer, start_y As Integer, square_width As Integer, gap As Integer
 Dim x_split(0 To 4) As Integer, y_split(0 To 5) As Integer
+Dim limit(-1 To 1, -1 To 1) As Boolean
+Dim click_mouse_x As Integer, click_mouse_y As Integer
+Dim click_x As Integer, click_y As Integer, print_now As Boolean
+Dim delta_x As Integer, delta_y As Integer, locked_x As Integer, locked_y As Integer
 Private Sub Form_Load()
+  start_x = 165
+  start_y = 150
+  square_width = 930
+  gap = 105
+  print_now = False
+  Text_Code = "UnFinished"
   If debug_mode = True Then
-    Form_Creator.width = 9400
+    Form_Creator.width = 8415
     Text_Debug.Visible = True
   Else
-    Form_Creator.width = 5745
+    Form_Creator.width = 4680
     Text_Debug.Visible = False
   End If
   If on_top = True Then
@@ -117,51 +120,66 @@ Private Sub Form_Load()
     SetWindowPos Me.hwnd, -2, 0, 0, 0, 0, 1 Or 2
   End If
   Call init
-  Call mark
-End Sub
-Private Sub Form_DblClick()
-  Cls
-  Call mark
-  Call Output_Graph
-End Sub
-Private Sub init()
-  Cls
-  start_x = 200
-  start_y = 200
-  square_width = 1170
-  gap = 120
   Call Case_init
-  x_split(0) = start_x
-  x_split(1) = start_x + gap / 2 + square_width + gap
-  x_split(2) = start_x + gap / 2 + (square_width + gap) * 2
-  x_split(3) = start_x + gap / 2 + (square_width + gap) * 3
-  x_split(4) = start_x + gap + (square_width + gap) * 4
-  y_split(0) = start_y
-  y_split(1) = start_y + gap / 2 + square_width + gap
-  y_split(2) = start_y + gap / 2 + (square_width + gap) * 2
-  y_split(3) = start_y + gap / 2 + (square_width + gap) * 3
-  y_split(4) = start_y + gap / 2 + (square_width + gap) * 4
-  y_split(5) = start_y + gap + (square_width + gap) * 5
+  Call Text_Code_Change
+End Sub
+Private Sub Text_Code_Change()
+  If print_now = True Then Exit Sub
+  Print_Block start_x, start_y, square_width * 4 + gap * 5, square_width * 5 + gap * 6, case_line_width, case_color, case_line_color
+  If Len(Text_Code) = 7 Then
+    Call Analyse(UCase(Text_Code))
+    If Check = True Then
+      Text_Code = UCase(Text_Code)
+      Call Output_Graph
+    End If
+  End If
+End Sub
+Private Sub Text_Code_KeyPress(KeyAscii As Integer)
+  If KeyAscii = 13 Then Call Command_Print_Click
+End Sub
+Private Sub Command_Confirm_Click()
+  If Text_Code = "UnFinished" Then
+    MsgBox "还没完成呢", , "> _ <"
+  Else
+    Call Analyse(UCase(Text_Code))
+    If Check = True Then
+      change_case = True
+      change_case_title = "自定义"
+      change_case_code = Text_Code
+      Unload Form_Creator
+    Else
+      MsgBox "编码错误哦", , "> _ <"
+      Text_Code.SetFocus
+      Call Command_Clear_Click
+    End If
+  End If
+End Sub
+Private Sub Command_Print_Click()
+  If Text_Code = "UnFinished" Then
+    MsgBox "还没完成呢", , "> _ <"
+  Else
+    Call Analyse(UCase(Text_Code))
+    If Check = True Then
+      Text_Code = UCase(Text_Code)
+      Call Output_Graph
+    Else
+      MsgBox "编码错误哦", , "> _ <"
+      Text_Code.SetFocus
+      Call Command_Clear_Click
+    End If
+  End If
+End Sub
+Private Sub Command_Get_Code_Click()
+  If Check_Compete = False Then MsgBox "还没完成呢", , "> _ <": Exit Sub
+  Text_Code = Get_Code
 End Sub
 Private Sub Command_Clear_Click()
   Call Case_init
-  Call init
   Cls
-  Call mark
-End Sub
-Private Sub Command_Confirm_Click()
-  change_case = True
-  change_case_title = "自定义"
-  change_case_code = Text_Code
-  Unload Form_Creator
-End Sub
-Private Sub Command_Get_Code_Click()
-  If Check_Compete = False Then MsgBox "UnFinished": Exit Sub
-  Text_Code = Get_Code
+  Print_Block start_x, start_y, square_width * 4 + gap * 5, square_width * 5 + gap * 6, case_line_width, case_color, case_line_color
 End Sub
 Private Sub Command_Mirror_Click()
-  Dim i As Integer, addr As Integer
-  Dim temp As Integer, temp_b As Boolean
+  Dim i As Integer, addr As Integer, temp As Integer, temp_b As Boolean
   For i = 0 To 9
     addr = Block(i).address
     If Not addr = 25 Then
@@ -196,62 +214,63 @@ Private Sub Command_Mirror_Click()
   Cls
   Call Output_Graph
 End Sub
-Private Sub Command_Print_Click()
-  If Text_Code = "UnFinished" Then
-    MsgBox "UnFinished"
-  Else
-    Text_Code = UCase(Text_Code)
-    Analyse (Text_Code)
-    If Check = True Then
-      Call Output_Graph
-    Else
-      MsgBox "Error Code!"
-      Call Command_Clear_Click
-    End If
+Private Sub Form_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
+  click_mouse_x = X
+  click_mouse_y = Y
+  click_x = Get_block_x(Int(X))
+  click_y = Get_block_y(Int(Y))
+  If click_x = 0 Or click_x = 5 Then Exit Sub
+  If click_y = 0 Or click_y = 6 Then Exit Sub
+  If Exist(click_x, click_y) = True Then
+    Call Clear_Block(Block_index(click_x, click_y))
+    Text_Code = "UnFinished"
+    Call Output_Graph
+    Exit Sub
   End If
+  If Not Button = 1 Then Exit Sub
+  Call check_limit(click_x, click_y)
+  print_now = True
+  Call Form_MouseMove(Button, Shift, X, Y)
 End Sub
-Private Sub Text_Code_Change()
-  If Text_Code = "UnFinished" Then Exit Sub
-  If Len(Text_Code) = 7 Then
-    Analyse (UCase(Text_Code))
-    If Check = True Then
-      Call Output_Graph
-      Text_Code = UCase(Text_Code)
-    Else
-      Call Command_Clear_Click
-    End If
-  Else
-    Call Command_Clear_Click
-  End If
-End Sub
-Private Sub Text_Code_KeyPress(KeyAscii As Integer)
-  If KeyAscii = 13 Then Call Command_Print_Click
-End Sub
-Private Sub Form_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
-  If Button = 1 And print_now = False Then
-    click_x = x
-    click_y = y
-    print_now = False
-    If click_x > start_x And click_x < start_x + square_width * 4 + gap * 5 Then
-      If click_y > start_y And click_y < start_y + square_width * 5 + gap * 6 Then
-        print_now = True
+Private Sub Form_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
+  Dim print_x As Integer, print_y As Integer, print_width As Integer, print_height As Integer
+  If print_now = True Then
+    delta_x = Get_Signed(Get_block_x(Int(X)) - click_x)
+    delta_y = Get_Signed(Get_block_y(Int(Y)) - click_y)
+    If delta_x = 0 And delta_y = 0 Then
+      locked_x = click_x
+      locked_y = click_y
+    ElseIf Abs(delta_x) = 1 And Abs(delta_y) = 1 Then
+      locked_x = click_x + delta_x
+      locked_y = click_y + delta_y
+      If limit(delta_x, delta_y) = True And limit(delta_x, 0) = False And limit(0, delta_y) = False Then
+        If Abs(click_mouse_x - X) < Abs(click_mouse_y - Y) Then locked_x = click_x Else locked_y = click_y
       End If
+      If limit(delta_x, 0) = True Then locked_x = click_x
+      If limit(0, delta_y) = True Then locked_y = click_y
+    ElseIf Abs(delta_x) = 1 And Abs(delta_y) = 0 Then
+      locked_y = click_y
+      If limit(delta_x, delta_y) = True Then locked_x = click_x Else locked_x = click_x + delta_x
+    ElseIf Abs(delta_x) = 0 And Abs(delta_y) = 1 Then
+      locked_x = click_x
+      If limit(delta_x, delta_y) = True Then locked_y = click_y Else locked_y = click_y + delta_y
     End If
-    If print_now = True Then
-      click_block_x = Get_block_x(click_x)
-      click_block_y = Get_block_y(click_y)
-      If Exist(click_block_x, click_block_y) = True Then print_now = False
-    End If
-    Call Form_MouseMove(Button, Shift, x + 1, y + 1)
-  ElseIf Button = 2 Then
-    Dim m As Integer
-    m = Block_index(Get_block_x(Int(x)), Get_block_y(Int(y)))
-    If m <> 10 Then Call Clear_Block(m): Text_Code = "UnFinished"
+    print_x = Get_Min(click_x, locked_x) * (square_width + gap) - square_width + start_x
+    print_y = Get_Min(click_y, locked_y) * (square_width + gap) - square_width + start_y
+    If locked_x = click_x Then print_width = square_width Else print_width = square_width * 2 + gap
+    If locked_y = click_y Then print_height = square_width Else print_height = square_width * 2 + gap
+    Call Output_Graph
+    Print_Block print_x, print_y, print_width, print_height, block_line_width, block_color, block_line_color
   End If
 End Sub
-Private Sub Form_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
-  Dim m As Integer, addr As Integer
-  If Button = 1 And print_now = True Then
+Private Sub Form_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+  Dim block_start_x As Integer, block_start_y As Integer, block_width As Integer, block_height As Integer
+  Dim addr As Integer, m As Integer
+  If print_now = True Then
+    block_start_x = Get_Min(click_x, locked_x)
+    block_start_y = Get_Min(click_y, locked_y)
+    block_width = Abs(click_x - locked_x) + 1
+    block_height = Abs(click_y - locked_y) + 1
     addr = (block_start_y - 1) * 4 + block_start_x - 1
     If block_width = 2 And block_height = 2 Then
       If Block(0).address = 25 Then
@@ -304,250 +323,120 @@ Private Sub Form_MouseUp(Button As Integer, Shift As Integer, x As Single, y As 
         End If
       Next m
     End If
-    If Check_Compete = True Then Call Command_Get_Code_Click Else Text_Code = "UnFinished"
-  End If
-  Call Output_Graph
-  print_now = False
-End Sub
-Private Sub Form_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
-  Dim output_x As Integer, output_y As Integer, output_width As Integer, output_height As Integer, locked_x As Integer, locked_y As Integer
-  If Button = 1 And print_now = True Then
+    Text_Code = ""
     Call Output_Graph
-    If x >= click_x Then
-      output_x = start_x + click_block_x * gap + (click_block_x - 1) * square_width
-      output_width = x - output_x
-      locked_x = x
-      If x > start_x + square_width * 4 + gap * 4 Then locked_x = start_x + square_width * 4 + gap * 4: output_width = locked_x - output_x
-      If output_width > square_width * 2 + gap Then output_width = square_width * 2 + gap: locked_x = output_x + output_width
-      block_start_x = click_block_x
-      block_width = Get_block_x(locked_x) - block_start_x + 1
+    If Check_Compete = True Then
+      Text_Code = Get_Code
+    Else
+      Text_Code = "UnFinished"
     End If
-    If x < click_x Then
-      output_x = x
-      output_width = (start_x + click_block_x * gap + click_block_x * square_width) - x
-      locked_x = x
-      If x < start_x + gap Then output_width = (click_block_x - 1) * gap + click_block_x * square_width: locked_x = start_x + gap: output_x = locked_x
-      If output_width > square_width * 2 + gap Then locked_x = start_x + (click_block_x - 1) * gap + (click_block_x - 2) * square_width: output_width = square_width * 2 + gap: output_x = locked_x
-      block_start_x = Get_block_x(locked_x)
-      block_width = Get_block_x(click_x) - block_start_x + 1
-    End If
-    If y >= click_y Then
-      output_y = start_y + click_block_y * gap + (click_block_y - 1) * square_width
-      output_height = y - output_y
-      locked_y = y
-      If y > start_y + square_width * 5 + gap * 5 Then locked_y = start_y + square_width * 5 + gap * 5: output_height = locked_y - output_y
-      If output_height > square_width * 2 + gap Then output_height = square_width * 2 + gap: locked_y = output_y + output_height
-      block_start_y = click_block_y
-      block_height = Get_block_y(locked_y) - block_start_y + 1
-    End If
-    If y < click_y Then
-      output_y = y
-      output_height = (start_y + click_block_y * gap + click_block_y * square_width) - y
-      locked_y = y
-      If y < start_y + gap Then output_height = (click_block_y - 1) * gap + click_block_y * square_width: locked_y = start_y + gap: output_y = locked_y
-      If output_height > square_width * 2 + gap Then locked_y = start_y + (click_block_y - 1) * gap + (click_block_y - 2) * square_width: output_height = square_width * 2 + gap: output_y = locked_y
-      block_start_y = Get_block_y(locked_y)
-      block_height = Get_block_y(click_y) - block_start_y + 1
-    End If
-
-    Dim x_limit As Boolean, y_limit As Boolean, xy_limit As Boolean
-    If x >= click_x And y >= click_y Then
-      x_limit = False: y_limit = False: xy_limit = False
-      If block_start_x < 4 Then
-        If Exist(block_start_x + 1, block_start_y) = True Then x_limit = True
-      Else
-        x_limit = True
-      End If
-      If block_start_y < 5 Then
-        If Exist(block_start_x, block_start_y + 1) = True Then y_limit = True
-      Else
-        y_limit = True
-      End If
-      If block_start_x < 4 And block_start_y < 5 Then
-        If Exist(block_start_x + 1, block_start_y + 1) = True Then xy_limit = True
-      End If
-      If x_limit = True Then
-        If output_width > square_width Then output_width = square_width
-        If block_width = 2 Then block_width = 1
-      End If
-      If y_limit = True Then
-        If output_height > square_width Then output_height = square_width
-        If block_height = 2 Then block_height = 1
-      End If
-      If xy_limit = True And x_limit = False And y_limit = False Then
-        If output_width < output_height Then
-          If output_width > square_width Then output_width = square_width
-          If block_width = 2 Then block_width = 1
-        Else
-          If output_height > square_width Then output_height = square_width
-          If block_height = 2 Then block_height = 1
-        End If
-      End If
-    End If
-    
-    If x >= click_x And y < click_y Then
-      x_limit = False: y_limit = False: xy_limit = False
-      If block_start_x < 4 Then
-        If Exist(block_start_x + 1, block_start_y + block_height - 1) = True Then x_limit = True
-      Else
-        x_limit = True
-      End If
-      If block_start_y + block_height - 1 > 1 Then
-        If Exist(block_start_x, block_start_y + block_height - 2) = True Then y_limit = True
-      Else
-        y_limit = True
-      End If
-      If block_start_x < 4 And block_start_y + block_height - 1 > 1 Then
-        If Exist(block_start_x + 1, block_start_y + block_height - 2) = True Then xy_limit = True
-      End If
-      If x_limit = True Then
-        If output_width > square_width Then output_width = square_width
-        If block_width = 2 Then block_width = 1
-      End If
-      If y_limit = True Then
-        If output_height > square_width Then
-          output_y = output_y + output_height - square_width
-          output_height = square_width
-        End If
-        If block_height = 2 Then block_height = 1: block_start_y = block_start_y + 1
-      End If
-      If xy_limit = True And x_limit = False And y_limit = False Then
-        If output_width < output_height Then
-          If output_width > square_width Then output_width = square_width
-          If block_width = 2 Then block_width = 1
-        Else
-          If output_height > square_width Then output_y = output_y + output_height - square_width: output_height = square_width
-          If block_height = 2 Then block_height = 1: block_start_y = block_start_y + 1
-        End If
-      End If
-    End If
-    
-    If x < click_x And y >= click_y Then
-      x_limit = False: y_limit = False: xy_limit = False
-      If block_start_x + block_width - 1 > 1 Then
-        If Exist(block_start_x + block_width - 2, block_start_y) = True Then x_limit = True
-      Else
-        x_limit = True
-      End If
-      If block_start_y < 5 Then
-        If Exist(block_start_x + block_width - 1, block_start_y + 1) = True Then y_limit = True
-      Else
-        y_limit = True
-      End If
-      If block_start_x + block_width - 1 > 1 And block_start_y < 5 Then
-        If Exist(block_start_x + block_width - 2, block_start_y + 1) = True Then xy_limit = True
-      End If
-      If x_limit = True Then
-        If output_width > square_width Then
-          output_x = output_x + output_width - square_width
-          output_width = square_width
-        End If
-        If block_width = 2 Then block_width = 1: block_start_x = block_start_x + 1
-      End If
-      If y_limit = True Then
-        If output_height > square_width Then output_height = square_width
-        If block_height = 2 Then block_height = 1
-      End If
-      If xy_limit = True And x_limit = False And y_limit = False Then
-        If output_width < output_height Then
-          If output_width > square_width Then output_x = output_x + output_width - square_width: output_width = square_width
-          If block_width = 2 Then block_width = 1: block_start_x = block_start_x + 1
-        Else
-          If output_height > square_width Then output_height = square_width
-          If block_height = 2 Then block_height = 1
-        End If
-      End If
-    End If
-    
-    If x < click_x And y < click_y Then
-      x_limit = False: y_limit = False: xy_limit = False
-      If block_start_x + block_width - 1 > 1 Then
-        If Exist(block_start_x + block_width - 2, block_start_y + block_height - 1) = True Then x_limit = True
-      Else
-        x_limit = True
-      End If
-      If block_start_y + block_height - 1 > 1 Then
-        If Exist(block_start_x + block_width - 1, block_start_y + block_height - 2) = True Then y_limit = True
-      Else
-        y_limit = True
-      End If
-      If block_start_x + block_width - 1 > 1 And block_start_y < 5 Then
-        If Exist(block_start_x + block_width - 2, block_start_y + block_height - 2) = True Then xy_limit = True
-      End If
-      If x_limit = True Then
-        If output_width > square_width Then
-          output_x = output_x + output_width - square_width
-          output_width = square_width
-        End If
-        If block_width = 2 Then block_width = 1: block_start_x = block_start_x + 1
-      End If
-      If y_limit = True Then
-        If output_height > square_width Then
-          output_y = output_y + output_height - square_width
-          output_height = square_width
-        End If
-        If block_height = 2 Then block_height = 1: block_start_y = block_start_y + 1
-      End If
-      If xy_limit = True And x_limit = False And y_limit = False Then
-        If output_width < output_height Then
-          If output_width > square_width Then output_x = output_x + output_width - square_width: output_width = square_width
-          If block_width = 2 Then block_width = 1: block_start_x = block_start_x + 1
-        Else
-          If output_height > square_width Then
-            output_y = output_y + output_height - square_width
-            output_height = square_width
-          End If
-          If block_height = 2 Then block_height = 1: block_start_y = block_start_y + 1
-        End If
-      End If
-    End If
-    Print_Block output_x, output_y, output_width, output_height, block_line_width, block_color, block_line_color
+    print_now = False
   End If
 End Sub
-Private Function Get_block_x(x As Integer) As Integer
+Private Sub check_limit(X As Integer, Y As Integer)
+  Dim i As Integer, j As Integer
+  For i = -1 To 1
+    For j = -1 To 1
+      limit(i, j) = False
+    Next j
+  Next i
+  If X = 1 Then
+    limit(-1, -1) = True: limit(-1, 0) = True: limit(-1, 1) = True
+  Else
+    If Exist(X - 1, Y) = True Then limit(-1, -1) = True: limit(-1, 0) = True: limit(-1, 1) = True
+    If Not Y = 1 Then
+      If Exist(X - 1, Y - 1) = True Then limit(-1, -1) = True
+    End If
+    If Not Y = 5 Then
+      If Exist(X - 1, Y + 1) = True Then limit(-1, 1) = True
+    End If
+  End If
+  If X = 4 Then
+    limit(1, -1) = True: limit(1, 0) = True: limit(1, 1) = True
+  Else
+    If Exist(X + 1, Y) = True Then limit(1, -1) = True: limit(1, 0) = True: limit(1, 1) = True
+    If Not Y = 1 Then
+      If Exist(X + 1, Y - 1) = True Then limit(1, -1) = True
+    End If
+    If Not Y = 5 Then
+      If Exist(X + 1, Y + 1) = True Then limit(1, 1) = True
+    End If
+  End If
+  If Y = 1 Then
+    limit(-1, -1) = True: limit(0, -1) = True: limit(1, -1) = True
+  Else
+    If Exist(X, Y - 1) = True Then limit(-1, -1) = True: limit(0, -1) = True: limit(1, -1) = True
+    If Not X = 1 Then
+      If Exist(X - 1, Y - 1) = True Then limit(-1, -1) = True
+    End If
+    If Not X = 4 Then
+      If Exist(X + 1, Y - 1) = True Then limit(1, -1) = True
+    End If
+  End If
+  If Y = 5 Then
+    limit(-1, 1) = True: limit(0, 1) = True: limit(1, 1) = True
+  Else
+    If Exist(X, Y + 1) = True Then limit(-1, 1) = True: limit(0, 1) = True: limit(1, 1) = True
+    If Not X = 1 Then
+      If Exist(X - 1, Y + 1) = True Then limit(-1, 1) = True
+    End If
+    If Not X = 4 Then
+      If Exist(X + 1, Y + 1) = True Then limit(1, 1) = True
+    End If
+  End If
+  If Not Block(0).address = 25 Then limit(-1, -1) = True: limit(-1, 1) = True: limit(1, -1) = True: limit(1, 1) = True
+End Sub
+Private Function Get_Min(num_1 As Integer, num_2 As Integer) As Integer
+  If num_1 < num_2 Then Get_Min = num_1 Else Get_Min = num_2
+End Function
+Private Function Get_Signed(num As Integer) As Integer
+  If num > 0 Then Get_Signed = 1
+  If num = 0 Then Get_Signed = 0
+  If num < 0 Then Get_Signed = -1
+End Function
+Private Function Get_block_x(X As Integer) As Integer
   Dim i As Integer
   For i = 1 To 4
-    If x > x_split(i - 1) And x < x_split(i) Then
+    If X >= x_split(i - 1) And X <= x_split(i) Then
       Get_block_x = i
       Exit For
     End If
   Next i
+  If X < x_split(0) Then Get_block_x = 0
+  If X > x_split(4) Then Get_block_x = 5
 End Function
-Private Function Get_block_y(y As Integer) As Integer
+Private Function Get_block_y(Y As Integer) As Integer
   Dim i As Integer
   For i = 1 To 5
-    If y > y_split(i - 1) And y < y_split(i) Then
+    If Y >= y_split(i - 1) And Y <= y_split(i) Then
       Get_block_y = i
       Exit For
     End If
   Next i
+  If Y < y_split(0) Then Get_block_y = 0
+  If Y > y_split(5) Then Get_block_y = 6
 End Function
-Private Sub mark()
-  Print_Block start_x, start_y, square_width * 4 + gap * 5, square_width * 5 + gap * 6, case_line_width, case_color, case_line_color
-  If debug_mode = True Then
-    Dim i As Integer, j As Integer
-    DrawWidth = 1
-    For i = 1 To 3
-      Line (start_x + gap / 2 + (square_width + gap) * i, start_y)-(start_x + gap / 2 + (square_width + gap) * i, start_y + square_width * 5 + gap * 6)
-    Next i
-    For i = 1 To 4
-      Line (start_x, start_y + gap / 2 + (square_width + gap) * i)-(start_x + square_width * 4 + gap * 5, start_y + gap / 2 + (square_width + gap) * i)
-    Next i
-    For i = 0 To 3
-      For j = 0 To 4
-        Line (start_x + square_width * i + gap * (i + 1), start_y + square_width * j + gap * (j + 1))-(start_x + square_width * (i + 1) + gap * (i + 1), start_y + square_width * (j + 1) + gap * (j + 1)), , B
-      Next j
-    Next i
-  End If
+Private Sub init()
+  x_split(0) = start_x
+  x_split(1) = start_x + gap / 2 + square_width + gap
+  x_split(2) = start_x + gap / 2 + (square_width + gap) * 2
+  x_split(3) = start_x + gap / 2 + (square_width + gap) * 3
+  x_split(4) = start_x + gap + (square_width + gap) * 4
+  y_split(0) = start_y
+  y_split(1) = start_y + gap / 2 + square_width + gap
+  y_split(2) = start_y + gap / 2 + (square_width + gap) * 2
+  y_split(3) = start_y + gap / 2 + (square_width + gap) * 3
+  y_split(4) = start_y + gap / 2 + (square_width + gap) * 4
+  y_split(5) = start_y + gap + (square_width + gap) * 5
 End Sub
 Private Sub Output_Graph()
-  Dim m, x, y As Integer
+  Dim m, X, Y As Integer
   Dim width As Integer, height As Integer
-  Call mark
+  Print_Block start_x, start_y, square_width * 4 + gap * 5, square_width * 5 + gap * 6, case_line_width, case_color, case_line_color
   For m = 0 To 9
     If Block(m).address <> 25 Then
-      x = (Block(m).address Mod 4) * (square_width + gap) + gap + start_x
-      y = Int(Block(m).address / 4) * (square_width + gap) + gap + start_y
+      X = (Block(m).address Mod 4) * (square_width + gap) + gap + start_x
+      Y = Int(Block(m).address / 4) * (square_width + gap) + gap + start_y
       If Block(m).style = 0 Or Block(m).style = 1 Then
         width = square_width * 2 + gap
       Else
@@ -558,7 +447,7 @@ Private Sub Output_Graph()
       Else
         height = square_width
       End If
-      Print_Block x, y, width, height, block_line_width, block_color, block_line_color
+      Print_Block X, Y, width, height, block_line_width, block_color, block_line_color
     End If
   Next m
 End Sub
@@ -582,6 +471,11 @@ Private Sub Case_init()
       Block_index(i, j) = 10
     Next j
   Next i
+  For i = -1 To 1
+    For j = -1 To 1
+      limit(i, j) = False
+    Next j
+  Next i
 End Sub
 Private Function Check_Compete()
   Dim m As Integer
@@ -594,45 +488,101 @@ Private Function Check_Compete()
   Check_Compete = True
 End Function
 Private Sub Clear_Block(m As Integer)
-  Dim x As Integer, y As Integer, addr As Integer
+  Dim X As Integer, Y As Integer, addr As Integer, style As Integer
   addr = Block(m).address
-  y = Int(addr / 4) + 1
-  x = addr - (y - 1) * 4 + 1
-  If Block(m).style = 0 Then
-    Exist(x, y) = False
-    Exist(x, y + 1) = False
-    Exist(x + 1, y) = False
-    Exist(x + 1, y + 1) = False
-    Block_index(x, y) = 10
-    Block_index(x, y + 1) = 10
-    Block_index(x + 1, y) = 10
-    Block_index(x + 1, y + 1) = 10
-  End If
-  If Block(m).style = 1 Then
-    Exist(x, y) = False
-    Exist(x + 1, y) = False
-    Block_index(x, y) = 10
-    Block_index(x + 1, y) = 10
-  End If
-  If Block(m).style = 2 Then
-    Exist(x, y) = False
-    Exist(x, y + 1) = False
-    Block_index(x, y) = 10
-    Block_index(x, y + 1) = 10
-  End If
-  If Block(m).style = 3 Then
-    Exist(x, y) = False
-    Block_index(x, y) = 10
-  End If
+  style = Block(m).style
   Block(m).address = 25
   Block(m).style = 4
+  Y = Int(addr / 4) + 1
+  X = addr - (Y - 1) * 4 + 1
+  If style = 0 Then
+    Exist(X, Y) = False
+    Exist(X, Y + 1) = False
+    Exist(X + 1, Y) = False
+    Exist(X + 1, Y + 1) = False
+    Block_index(X, Y) = 10
+    Block_index(X, Y + 1) = 10
+    Block_index(X + 1, Y) = 10
+    Block_index(X + 1, Y + 1) = 10
+  End If
+  If style = 1 Then
+    Exist(X, Y) = False
+    Exist(X + 1, Y) = False
+    Block_index(X, Y) = 10
+    Block_index(X + 1, Y) = 10
+  End If
+  If style = 2 Then
+    Exist(X, Y) = False
+    Exist(X, Y + 1) = False
+    Block_index(X, Y) = 10
+    Block_index(X, Y + 1) = 10
+  End If
+  If style = 3 Then
+    Exist(X, Y) = False
+    Block_index(X, Y) = 10
+  End If
 End Sub
+Private Function Check() As Boolean
+  Dim temp(0 To 19) As Boolean
+  Dim addr As Integer, i As Integer, j As Integer
+  For i = 0 To 19
+    temp(i) = False
+  Next i
+  Check = True
+  If Block(0).style <> 0 Or Block(0).address > 20 Or Block(0).address < 0 Then
+    Check = False: GoTo check_err
+  Else
+    addr = Block(0).address
+    If addr > 14 Or (addr Mod 4 = 3) Then Check = False: GoTo check_err
+    temp(addr) = True
+    temp(addr + 1) = True
+    temp(addr + 4) = True
+    temp(addr + 5) = True
+  End If
+  For i = 1 To 5
+    If Block(i).address > 20 Or Block(i).address < 0 Then
+      Check = False: GoTo check_err
+    ElseIf Block(i).style <> 1 And Block(i).style <> 2 Then
+      Check = False: GoTo check_err
+    Else
+      addr = Block(i).address
+      If Block(i).style = 1 Then
+        If addr > 18 Or (addr Mod 4 = 3) Then Check = False: GoTo check_err
+        If temp(addr) = True Or temp(addr + 1) = True Then Check = False: GoTo check_err
+        temp(addr) = True
+        temp(addr + 1) = True
+      End If
+      If Block(i).style = 2 Then
+        If addr > 15 Then Check = False: GoTo check_err
+        If temp(addr) = True Or temp(addr + 4) = True Then Check = False: GoTo check_err
+        temp(addr) = True
+        temp(addr + 4) = True
+      End If
+    End If
+  Next i
+  For i = 6 To 9
+    If Block(i).style <> 3 Or Block(i).address > 20 Or Block(i).address < 0 Then
+      Check = False: GoTo check_err
+    Else
+      addr = Block(i).address
+      If addr > 19 Then Check = False: GoTo check_err
+      If temp(addr) = True Then Check = False: GoTo check_err
+      temp(addr) = True
+    End If
+  Next i
+  j = 0
+  For i = 0 To 19
+    If temp(i) = False Then j = j + 1
+  Next i
+  If j <> 2 Then Check = False: GoTo check_err
+check_err:
+End Function
 Private Function Get_Code() As String
   On Error Resume Next
   Dim temp(20) As Boolean
   Dim Table(20) As Integer
   Dim dat(1 To 12) As Integer
-  Dim Code As String
+  Dim code As String
   Dim i As Integer, addr As Integer, style As Integer, num As Integer
   For i = 0 To 19
     temp(i) = False
@@ -659,9 +609,9 @@ Private Function Get_Code() As String
   temp(Block(0).address + 4) = True
   temp(Block(0).address + 5) = True
   If Block(0).address < 10 Then
-    Code = Code & Block(0).address
+    code = code & Block(0).address
   Else
-    Code = Code & Chr(Block(0).address + 55)
+    code = code & Chr(Block(0).address + 55)
   End If
   addr = 0
   num = 1
@@ -695,105 +645,52 @@ Private Function Get_Code() As String
   For i = 1 To 6
     num = dat(i * 2 - 1) * 4 + dat(i * 2)
     If num < 10 Then
-      Code = Code & num
+      code = code & num
     Else
-      Code = Code & Chr(num + 55)
+      code = code & Chr(num + 55)
     End If
   Next i
-  Get_Code = Code
+  Get_Code = code
 End Function
-Private Sub Analyse(Code As String)
-  Dim m As Integer, addr As Integer, x As Integer, y As Integer
-  Call Analyse_Code(Code)
-  For x = 1 To 4
-    For y = 1 To 5
-      Block_index(x, y) = 10
-      Exist(x, y) = False
-    Next y
-  Next x
+Private Sub Analyse(code As String)
+  Dim m As Integer, addr As Integer, X As Integer, Y As Integer
+  Call Analyse_Code(code)
+  If Check = False Then Call Case_init: Exit Sub
+  For X = 1 To 4
+    For Y = 1 To 5
+      Block_index(X, Y) = 10
+      Exist(X, Y) = False
+    Next Y
+  Next X
   For m = 0 To 9
     addr = Block(m).address
-    y = Int(addr / 4) + 1
-    x = addr - (y - 1) * 4 + 1
+    Y = Int(addr / 4) + 1
+    X = addr - (Y - 1) * 4 + 1
     If Block(m).style = 0 Then
-      Block_index(x, y) = 0
-      Block_index(x, y + 1) = 0
-      Block_index(x + 1, y) = 0
-      Block_index(x + 1, y + 1) = 0
+      Block_index(X, Y) = 0
+      Block_index(X, Y + 1) = 0
+      Block_index(X + 1, Y) = 0
+      Block_index(X + 1, Y + 1) = 0
     End If
     If Block(m).style = 1 Then
-      Block_index(x, y) = m
-      Block_index(x + 1, y) = m
+      Block_index(X, Y) = m
+      Block_index(X + 1, Y) = m
     End If
     If Block(m).style = 2 Then
-      Block_index(x, y) = m
-      Block_index(x, y + 1) = m
+      Block_index(X, Y) = m
+      Block_index(X, Y + 1) = m
     End If
     If Block(m).style = 3 Then
-      Block_index(x, y) = m
+      Block_index(X, Y) = m
     End If
   Next m
-  For x = 1 To 4
-    For y = 1 To 5
-      If Block_index(x, y) <> 10 Then Exist(x, y) = True
-    Next y
-  Next x
+  For X = 1 To 4
+    For Y = 1 To 5
+      If Block_index(X, Y) <> 10 Then Exist(X, Y) = True
+    Next Y
+  Next X
 End Sub
-Private Function Check() As Boolean
-  Dim temp(0 To 19) As Boolean
-  Dim addr As Integer, i As Integer, j As Integer
-  For i = 0 To 19
-    temp(i) = False
-  Next i
-  Check = True
-  If Block(0).style <> 0 Or Block(0).address > 20 Or Block(0).address < 0 Then
-    Check = False
-  Else
-    addr = Block(0).address
-    If addr > 14 Or (addr Mod 4 = 3) Then Check = False
-    temp(addr) = True
-    temp(addr + 1) = True
-    temp(addr + 4) = True
-    temp(addr + 5) = True
-  End If
-  For i = 1 To 5
-    If Block(i).address > 20 Or Block(i).address < 0 Then
-      Check = False
-    ElseIf Block(i).style <> 1 And Block(i).style <> 2 Then
-      Check = False
-    Else
-      addr = Block(i).address
-      If Block(i).style = 1 Then
-        If addr > 18 Or (addr Mod 4 = 3) Then Check = False
-        If temp(addr) = True Or temp(addr + 1) = True Then Check = False
-        temp(addr) = True
-        temp(addr + 1) = True
-      End If
-      If Block(i).style = 2 Then
-        If addr > 15 Then Check = False
-        If temp(addr) = True Or temp(addr + 4) = True Then Check = False
-        temp(addr) = True
-        temp(addr + 4) = True
-      End If
-    End If
-  Next i
-  For i = 6 To 9
-    If Block(i).style <> 3 Or Block(i).address > 20 Or Block(i).address < 0 Then
-      Check = False
-    Else
-      addr = Block(i).address
-      If addr > 19 Then Check = False
-      If temp(addr) = True Then Check = False
-      temp(addr) = True
-    End If
-  Next i
-  j = 0
-  For i = 0 To 19
-    If temp(i) = False Then j = j + 1
-  Next i
-  If j <> 2 Then Check = False
-End Function
-Private Sub Analyse_Code(Code As String)
+Private Sub Analyse_Code(code As String)
   On Error Resume Next
   Dim temp(1 To 12) As Integer
   Dim i, addr, style As Integer
@@ -802,7 +699,7 @@ Private Sub Analyse_Code(Code As String)
   Dim num As Integer, b1 As Integer, b2 As Integer
   Dim dat As String
   For i = 1 To 6
-    dat = Mid(Code, i + 1, 1)
+    dat = Mid(code, i + 1, 1)
     If Asc(dat) >= 48 And Asc(dat) <= 57 Then num = Int(dat)
     If Asc(dat) >= 65 And Asc(dat) <= 70 Then num = Asc(dat) - 55
     b1 = num Mod 4
@@ -818,7 +715,7 @@ Private Sub Analyse_Code(Code As String)
     Block(i).address = 69
     Block(i).style = 69
   Next i
-  dat = Left(Code, 1)
+  dat = Left(code, 1)
   If Asc(dat) >= 48 And Asc(dat) <= 57 Then num = Int(dat)
   If Asc(dat) >= 65 And Asc(dat) <= 70 Then num = Asc(dat) - 55
   Block(0).address = num
@@ -864,13 +761,14 @@ Private Sub Analyse_Code(Code As String)
 err:
 End Sub
 Private Sub Timer_Debug_Timer()
-  Dim i As Integer, j As Integer, m As Integer, debug_dat As String
+  Dim debug_dat As String
+  Dim i As Integer, j As Integer, m As Integer
   For m = 0 To 9
     debug_dat = debug_dat & "Block[" & m & "] -> address = " & Block(m).address & "  style = " & Block(m).style
     If m <> 9 Then debug_dat = debug_dat & vbCrLf
   Next m
   debug_dat = debug_dat & vbCrLf & vbCrLf
-  debug_dat = debug_dat & "   exist          block_index" & vbCrLf
+  debug_dat = debug_dat & "   exist     block_index   limit" & vbCrLf
   For j = 1 To 5
     For i = 1 To 4
       If Exist(i, j) Then
@@ -879,7 +777,7 @@ Private Sub Timer_Debug_Timer()
         debug_dat = debug_dat & "[] "
       End If
     Next i
-    debug_dat = debug_dat & "        "
+    debug_dat = debug_dat & "   "
     For i = 1 To 4
       If Block_index(i, j) = 10 Then
         debug_dat = debug_dat & "A "
@@ -887,25 +785,33 @@ Private Sub Timer_Debug_Timer()
         debug_dat = debug_dat & Trim(Block_index(i, j)) & " "
       End If
     Next i
+    debug_dat = debug_dat & "   "
+    If j <= 3 Then
+      For i = -1 To 1
+        If limit(i, j - 2) = True Then
+          debug_dat = debug_dat & "$$ "
+        Else
+          debug_dat = debug_dat & "[] "
+        End If
+      Next i
+    End If
     debug_dat = debug_dat & vbCrLf & vbCrLf
   Next j
-  debug_dat = debug_dat & "print_now = " & print_now & vbCrLf & "debug_mode = " & debug_mode
-  debug_dat = debug_dat & vbCrLf & vbCrLf
-  debug_dat = debug_dat & "click_x = " & click_x & vbCrLf & "click_y = " & click_y & vbCrLf
-  debug_dat = debug_dat & "click_block_x = " & click_block_x & vbCrLf & "click_block_y = " & click_block_y & vbCrLf
-  debug_dat = debug_dat & "block_start_x = " & block_start_x & vbCrLf & "block_start_y = " & block_start_y & vbCrLf & "block_width = " & block_width & vbCrLf & "block_height = " & block_height
-  debug_dat = debug_dat & vbCrLf & vbCrLf
-  debug_dat = debug_dat & "start_x = " & start_x & vbCrLf & "start_y = " & start_y & vbCrLf & "gap = " & gap & vbCrLf & "square_width = " & square_width
-  debug_dat = debug_dat & vbCrLf & "x_split: "
+  debug_dat = debug_dat & vbCrLf
+  debug_dat = debug_dat & "click_mouse_x=" & click_mouse_x & vbCrLf & "click_mouse_y=" & click_mouse_y & vbCrLf & vbCrLf
+  debug_dat = debug_dat & "click_x=" & click_x & " " & "click_y=" & click_y & vbCrLf
+  debug_dat = debug_dat & "delta_x=" & delta_x & " " & "delta_y=" & delta_y & vbCrLf
+  debug_dat = debug_dat & "locked_x=" & locked_x & " " & "locked_y=" & locked_y & vbCrLf
+  debug_dat = debug_dat & "print_now=" & print_now & vbCrLf
+  debug_dat = debug_dat & vbCrLf & "x_split:"
   For m = 0 To 4
     debug_dat = debug_dat & x_split(m)
     If m <> 4 Then debug_dat = debug_dat & "|"
   Next m
-  debug_dat = debug_dat & vbCrLf & "y_split: "
+  debug_dat = debug_dat & vbCrLf & "y_split:"
   For m = 0 To 5
     debug_dat = debug_dat & y_split(m)
     If m <> 5 Then debug_dat = debug_dat & "|"
   Next m
   Text_Debug = debug_dat
 End Sub
-

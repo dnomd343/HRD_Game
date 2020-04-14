@@ -17,7 +17,7 @@ Begin VB.Form Form_Detail
       Caption         =   "全局溯源分析"
       Height          =   300
       Left            =   2520
-      TabIndex        =   4
+      TabIndex        =   3
       Top             =   120
       Width           =   1695
    End
@@ -30,7 +30,7 @@ Begin VB.Form Form_Detail
       Height          =   4380
       Left            =   7960
       MultiLine       =   -1  'True
-      TabIndex        =   3
+      TabIndex        =   4
       Top             =   120
       Width           =   2415
    End
@@ -52,7 +52,7 @@ Begin VB.Form Form_Detail
       Height          =   300
       Left            =   120
       Style           =   2  'Dropdown List
-      TabIndex        =   1
+      TabIndex        =   0
       Top             =   120
       Width           =   2295
    End
@@ -61,7 +61,7 @@ Begin VB.Form Form_Detail
       ItemData        =   "Form_Detail.frx":0004
       Left            =   120
       List            =   "Form_Detail.frx":0006
-      TabIndex        =   0
+      TabIndex        =   1
       Top             =   480
       Width           =   2295
    End
@@ -72,19 +72,11 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
-Private Type Case_Block
-  address As Integer
-  style As Integer
-End Type
-Private Type Layer_struct
-  size As Integer
-  layer_dat() As String
-End Type
 Dim wait_data As Boolean, loading As Boolean
-Dim Block(0 To 9) As Case_Block
+Dim Block(0 To 9) As Block_struct
 Dim start_x As Integer, start_y As Integer, square_width As Integer, gap As Integer
 Dim group_size As Long, min_steps As Integer, farthest_steps As Integer
-Dim min_solutions() As String, farthest_cases() As String, solutions() As String, layers() As String, layer() As Layer_struct
+Dim min_solutions() As String, farthest_cases() As String, solutions() As String, list_dat() As String
 Private Sub Form_Load()
   start_x = 4350
   start_y = 135
@@ -106,7 +98,7 @@ Private Sub Form_Load()
   ReDim min_solutions(0)
   ReDim farthest_cases(0)
   ReDim solutions(0)
-  ReDim layers(0)
+  ReDim list_dat(0)
   ReDim layer(0 To 0)
   Combo_Detail.AddItem "最少步解"
   Combo_Detail.AddItem "所有的解"
@@ -114,7 +106,7 @@ Private Sub Form_Load()
   Combo_Detail.AddItem "各步数的布局"
   wait_file_name = start_code & ".txt"
   If Dir(start_code & ".txt") <> "" Then Kill start_code & ".txt"
-  Shell "Engine.exe -a " & start_code
+  Shell "Engine.exe -a " & start_code, vbHide
   wait_cancel = False
   waiting = True
   wait_data = True
@@ -200,7 +192,7 @@ Private Sub Get_Data(file_name As String)
   ReDim min_solutions(0)
   ReDim farthest_cases(0)
   ReDim solutions(0)
-  ReDim layers(0)
+  ReDim list_dat(0)
   Open file_name For Input As #1
     Line Input #1, temp: Line Input #1, temp
     group_size = temp
@@ -228,8 +220,8 @@ Private Sub Get_Data(file_name As String)
     Wend
     Line Input #1, temp
     While (temp <> "[Layer]")
-      ReDim Preserve layers(UBound(layers) + 1)
-      layers(UBound(layers)) = temp
+      ReDim Preserve list_dat(UBound(list_dat) + 1)
+      list_dat(UBound(list_dat)) = temp
       Line Input #1, temp
     Wend
   Close #1
@@ -237,10 +229,10 @@ Private Sub Get_Data(file_name As String)
 End Sub
 Private Sub split_layer()
   Dim i As Long, code As String, num As Integer, index As Integer
-  For i = 1 To UBound(layers)
-    code = Mid(layers(i), InStr(1, layers(i), ">") + 2, 7)
-    num = Mid(layers(i), InStr(1, layers(i), "(") + 1, InStr(1, layers(i), ",") - InStr(1, layers(i), "(") - 1)
-    index = Mid(layers(i), InStr(1, layers(i), ",") + 1, Len(layers(i)) - InStr(1, layers(i), ",") - 1)
+  For i = 1 To UBound(list_dat)
+    code = Mid(list_dat(i), InStr(1, list_dat(i), ">") + 2, 7)
+    num = Mid(list_dat(i), InStr(1, list_dat(i), "(") + 1, InStr(1, list_dat(i), ",") - InStr(1, list_dat(i), "(") - 1)
+    index = Mid(list_dat(i), InStr(1, list_dat(i), ",") + 1, Len(list_dat(i)) - InStr(1, list_dat(i), ",") - 1)
     ReDim Preserve layer(0 To num)
     ReDim Preserve layer(num).layer_dat(0 To index)
     layer(num).layer_dat(index) = code
@@ -356,7 +348,7 @@ Private Sub Timer_Debug_Timer()
   debug_dat = debug_dat & "min_solutions->" & UBound(min_solutions) & vbCrLf
   debug_dat = debug_dat & "farthest_cases->" & UBound(farthest_cases) & vbCrLf
   debug_dat = debug_dat & "solutions->" & UBound(solutions) & vbCrLf
-  debug_dat = debug_dat & "layers->" & UBound(layers) & vbCrLf
+  debug_dat = debug_dat & "list_dat->" & UBound(list_dat) & vbCrLf
   debug_dat = debug_dat & "layer->" & UBound(layer) & vbCrLf
   Text_Debug = debug_dat
 End Sub

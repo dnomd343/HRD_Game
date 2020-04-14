@@ -2,7 +2,7 @@ VERSION 5.00
 Begin VB.Form Form_Game 
    AutoRedraw      =   -1  'True
    BorderStyle     =   1  'Fixed Single
-   Caption         =   "HRD Game v1.9 by Dnomd343"
+   Caption         =   "HRD Game v2.0 by Dnomd343"
    ClientHeight    =   7305
    ClientLeft      =   45
    ClientTop       =   690
@@ -15,100 +15,132 @@ Begin VB.Form Form_Game
    ScaleHeight     =   7305
    ScaleWidth      =   7290
    StartUpPosition =   2  '屏幕中心
-   Begin VB.CommandButton Command_Detail 
-      Caption         =   "详细解析"
-      Height          =   495
-      Left            =   5760
-      TabIndex        =   15
-      Top             =   6360
-      Width           =   1335
-   End
-   Begin VB.CommandButton Command_Prompt 
-      Caption         =   "提示下一步"
-      Height          =   495
-      Left            =   5760
-      TabIndex        =   14
-      Top             =   4440
-      Width           =   1335
-   End
-   Begin VB.CommandButton Command_Solution 
-      Caption         =   "最少步解法"
-      Height          =   495
-      Left            =   5760
-      TabIndex        =   13
+   Begin VB.Frame Frame_Analyse 
+      Caption         =   "分析"
+      Height          =   1335
+      Left            =   5640
+      TabIndex        =   3
       Top             =   5760
-      Width           =   1335
+      Width           =   1575
+      Begin VB.CommandButton Command_Detail 
+         Caption         =   "详细解析"
+         Height          =   495
+         Left            =   120
+         TabIndex        =   14
+         Top             =   720
+         Width           =   1335
+      End
+      Begin VB.CommandButton Command_Solution 
+         Caption         =   "最少步解法"
+         Height          =   495
+         Left            =   120
+         TabIndex        =   13
+         Top             =   240
+         Width           =   1335
+      End
    End
-   Begin VB.CommandButton Command_Add_Favourite 
-      Caption         =   "加入收藏"
-      Height          =   495
-      Left            =   5760
-      TabIndex        =   12
-      Top             =   2640
-      Width           =   1335
+   Begin VB.Frame Frame_Game 
+      Caption         =   "游戏"
+      Height          =   2295
+      Left            =   5640
+      TabIndex        =   2
+      Top             =   3360
+      Width           =   1575
+      Begin VB.CommandButton Command_Reset 
+         Caption         =   "重新开始"
+         Height          =   495
+         Left            =   120
+         TabIndex        =   12
+         Top             =   1680
+         Width           =   1335
+      End
+      Begin VB.CommandButton Command_Prompt 
+         Caption         =   "提示下一步"
+         Height          =   495
+         Left            =   120
+         TabIndex        =   11
+         Top             =   1200
+         Width           =   1335
+      End
+      Begin VB.CommandButton Command_Reduction_Snapshot 
+         Caption         =   "还原快照"
+         Height          =   495
+         Left            =   120
+         TabIndex        =   10
+         Top             =   720
+         Width           =   1335
+      End
+      Begin VB.CommandButton Command_Create_Snapshot 
+         Caption         =   "创建快照"
+         Height          =   495
+         Left            =   120
+         TabIndex        =   9
+         Top             =   240
+         Width           =   1335
+      End
    End
-   Begin VB.CommandButton Command_Favourite 
-      Caption         =   "我的收藏"
-      Height          =   495
-      Left            =   5760
-      TabIndex        =   11
+   Begin VB.Frame Frame_Favourite 
+      Caption         =   "收藏"
+      Height          =   1335
+      Left            =   5640
+      TabIndex        =   1
       Top             =   1920
-      Width           =   1335
+      Width           =   1575
+      Begin VB.CommandButton Command_Add_Favourite 
+         Caption         =   "加入收藏"
+         Height          =   495
+         Left            =   120
+         TabIndex        =   8
+         Top             =   720
+         Width           =   1335
+      End
+      Begin VB.CommandButton Command_Favourite 
+         Caption         =   "我的收藏"
+         Height          =   495
+         Left            =   120
+         TabIndex        =   7
+         Top             =   240
+         Width           =   1335
+      End
    End
-   Begin VB.CommandButton Command_Reduction_Snapshot 
-      Caption         =   "还原快照"
-      Height          =   495
-      Left            =   5760
-      TabIndex        =   10
-      Top             =   3840
-      Width           =   1335
-   End
-   Begin VB.CommandButton Command_Create_Snapshot 
-      Caption         =   "创建快照"
-      Height          =   495
-      Left            =   5760
-      TabIndex        =   9
-      Top             =   3240
-      Width           =   1335
-   End
-   Begin VB.CommandButton Command_Rand_Case 
-      Caption         =   "随机生成布局"
-      Height          =   495
-      Left            =   5760
-      TabIndex        =   8
-      Top             =   1320
-      Width           =   1335
-   End
-   Begin VB.CommandButton Command_Select_Case 
-      Caption         =   "选择经典布局"
-      Height          =   495
-      Left            =   5760
-      TabIndex        =   7
-      Top             =   720
-      Width           =   1335
-   End
-   Begin VB.CommandButton Command_Create_Case 
-      Caption         =   "自定义布局"
-      Height          =   495
-      Left            =   5760
-      TabIndex        =   6
-      Top             =   120
-      Width           =   1335
+   Begin VB.Frame Frame_Start 
+      Caption         =   "开始"
+      Height          =   1815
+      Left            =   5640
+      TabIndex        =   0
+      Top             =   0
+      Width           =   1575
+      Begin VB.CommandButton Command_Rand_Case 
+         Caption         =   "随机生成布局"
+         Height          =   495
+         Left            =   120
+         TabIndex        =   6
+         Top             =   1200
+         Width           =   1335
+      End
+      Begin VB.CommandButton Command_Select_Case 
+         Caption         =   "选择经典布局"
+         Height          =   495
+         Left            =   120
+         TabIndex        =   5
+         Top             =   720
+         Width           =   1335
+      End
+      Begin VB.CommandButton Command_Create_Case 
+         Caption         =   "自定义布局"
+         Height          =   495
+         Left            =   120
+         TabIndex        =   4
+         Top             =   240
+         Width           =   1335
+      End
    End
    Begin VB.Timer Timer_Layout 
       Interval        =   300
       Left            =   0
       Top             =   0
    End
-   Begin VB.CommandButton Command_Reset 
-      Caption         =   "重新开始"
-      Height          =   495
-      Left            =   5760
-      TabIndex        =   1
-      Top             =   5040
-      Width           =   1335
-   End
-   Begin VB.Timer Timer_Get_Time 
+   Begin VB.Timer Timer_Timing 
       Enabled         =   0   'False
       Interval        =   50
       Left            =   0
@@ -120,18 +152,18 @@ Begin VB.Form Form_Game
       Top             =   0
    End
    Begin VB.TextBox Text_Debug 
-      Height          =   6855
+      Height          =   6975
       Left            =   7320
       MultiLine       =   -1  'True
-      TabIndex        =   0
-      Top             =   240
-      Width           =   3735
+      TabIndex        =   15
+      Top             =   120
+      Width           =   3855
    End
    Begin VB.Label Label_Code 
       AutoSize        =   -1  'True
       Height          =   180
       Left            =   0
-      TabIndex        =   5
+      TabIndex        =   19
       Top             =   7000
       Width           =   90
    End
@@ -139,7 +171,7 @@ Begin VB.Form Form_Game
       AutoSize        =   -1  'True
       Height          =   180
       Left            =   0
-      TabIndex        =   4
+      TabIndex        =   18
       Top             =   7000
       Width           =   90
    End
@@ -148,7 +180,7 @@ Begin VB.Form Form_Game
       AutoSize        =   -1  'True
       Height          =   180
       Left            =   0
-      TabIndex        =   3
+      TabIndex        =   17
       Top             =   45
       Width           =   105
    End
@@ -156,7 +188,7 @@ Begin VB.Form Form_Game
       AutoSize        =   -1  'True
       Height          =   180
       Left            =   0
-      TabIndex        =   2
+      TabIndex        =   16
       Top             =   7000
       Width           =   90
    End
@@ -193,15 +225,11 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
-Private Type Case_Block
-  address As Integer
-  style As Integer
-End Type
 Private Type Block_Address
   X As Integer
   Y As Integer
 End Type
-Dim Block(0 To 9) As Case_Block
+Dim Block(0 To 9) As Block_struct
 Dim Exist(1 To 4, 1 To 5) As Boolean
 Dim Block_index(1 To 4, 1 To 5) As Integer
 Dim start_x As Integer, start_y As Integer, square_width As Integer, gap As Integer
@@ -213,10 +241,6 @@ Dim last_move As Integer, move_times As Integer
 Dim total_steps As Long, total_time As Long
 Dim snapshot_code As String, snapshot_step As Long
 Dim prompt_wait_data As Boolean
-Private Sub Menu_Debug_Mode_Click()
-  Menu_Debug_Mode.Checked = Not Menu_Debug_Mode.Checked
-  If Menu_Debug_Mode.Checked = True Then debug_mode = True Else debug_mode = False
-End Sub
 Private Sub Menu_Exterior_White_Click()
   block_line_width = 1
   case_line_width = 2
@@ -278,17 +302,33 @@ Private Sub Menu_On_Top_Click()
     SetWindowPos Me.hwnd, -2, 0, 0, 0, 0, 1 Or 2
   End If
 End Sub
+Private Sub Menu_Debug_Mode_Click()
+  Menu_Debug_Mode.Checked = Not Menu_Debug_Mode.Checked
+  If Menu_Debug_Mode.Checked = True Then debug_mode = True Else debug_mode = False
+End Sub
 Private Sub Form_Load()
   Me.Icon = Me.MouseIcon
   debug_mode = False
   on_top = True
-  block_line_width = 1
-  case_line_width = 2
-  block_line_color = RGB(0, 158, 240)
-  case_line_color = RGB(0, 158, 240)
-  block_color = RGB(225, 245, 255)
-  case_color = RGB(248, 254, 255)
+  playing = False
+  solve_compete = False
+  start_x = 180
+  start_y = 300
+  gap = 105
+  square_width = 1200
+  snapshot_step = -1
+  last_move = 10
+  move_times = 0
+  total_steps = 0
+  total_time = 0
+  If on_top = True Then
+    SetWindowPos Me.hwnd, -1, 0, 0, 0, 0, 1 Or 2
+  Else
+    SetWindowPos Me.hwnd, -2, 0, 0, 0, 0, 1 Or 2
+  End If
   Call init
+  Call Case_init
+  Print_Block start_x, start_y, square_width * 4 + gap * 5, square_width * 5 + gap * 6, case_line_width, case_color, case_line_color
 End Sub
 Private Sub Form_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
   mouse_button = Button
@@ -303,14 +343,9 @@ Private Sub Form_Click()
   If mouse_x < start_x Or mouse_x > start_x + square_width * 4 + gap * 5 Then Exit Sub
   If mouse_y < start_y Or mouse_y > start_y + square_width * 5 + gap * 6 Then Exit Sub
   If solve_compete = True Then Exit Sub
+  If Block_index(Get_block_x(mouse_x), Get_block_y(mouse_y)) = 10 Then Exit Sub
+  If playing = False Then Call start_playing
   m = Block_index(Get_block_x(mouse_x), Get_block_y(mouse_y))
-  If m = 10 Then Exit Sub
-  If playing = False Then
-    playing = True
-    total_time = 0
-    total_steps = 0
-    Timer_Get_Time.Enabled = True
-  End If
   Y = Int(Block(m).address / 4) + 1
   X = Block(m).address - (Y - 1) * 4 + 1
   If m = last_move Then
@@ -380,12 +415,13 @@ Private Sub Form_Click()
   Label_Step = "步数: " & total_steps
   Label_Code = Get_Code()
   Call Output_Graph
-  If Block(0).address = 13 Then
-    Timer_Get_Time = False
-    playing = False
-    solve_compete = True
-    MsgBox "恭喜你成功完成！" & vbCrLf & "编码: " & start_code & vbCrLf & "步数: " & total_steps & vbCrLf & "用时: " & Right(Label_Time, Len(Label_Time) - 4), , "（>__<）"
-  End If
+  If Block(0).address = 13 Then Call case_solve_compete
+End Sub
+Private Sub Command_Solution_Click()
+  Form_Solution.Show 1
+End Sub
+Private Sub Command_Detail_Click()
+  Form_Detail.Show 1
 End Sub
 Private Sub Command_Create_Case_Click()
   Form_Creator.Show 1
@@ -400,17 +436,41 @@ Private Sub Command_Favourite_Click()
   favourite_add_confirm = False
   Form_Favourite.Show 1
 End Sub
-Private Sub Command_Solution_Click()
-  Form_Solution.Show 1
-End Sub
-Private Sub Command_Detail_Click()
-  Form_Detail.Show 1
-End Sub
 Private Sub Command_Add_Favourite_Click()
   favourite_add_save = True
   favourite_add_init_code = Label_Code
-  If playing = False And solve_compete = False Then favourite_add_init_name = Left(Label_Title, Len(Label_Title) - 9) Else favourite_add_init_name = ""
+  If playing = False And solve_compete = False Then
+    favourite_add_init_name = Left(Label_Title, Len(Label_Title) - 9)
+  Else
+    favourite_add_init_name = ""
+  End If
   Form_Favourite_Add.Show 1
+End Sub
+Private Sub Command_Prompt_Click()
+  If solve_compete = True Then MsgBox "你已经解好啦", , "> _ <": Exit Sub
+  wait_file_name = Label_Code & ".txt"
+  If Dir(Label_Code & ".txt") <> "" Then Kill Label_Code & ".txt"
+  Shell "Engine.exe -q " & Label_Code, vbHide
+  wait_cancel = False
+  waiting = True
+  prompt_wait_data = True
+  Form_Wait.Show 1
+End Sub
+Private Sub Command_Reset_Click()
+  total_steps = 0
+  total_time = 0
+  last_move = 10
+  move_times = 0
+  snapshot_step = -1
+  playing = False
+  solve_compete = False
+  Timer_Timing.Enabled = False
+  Call Case_init
+  Label_Step = "步数: 0"
+  Label_Code = start_code
+  Label_Time = "用时: 0:00:00"
+  Call Analyse(start_code)
+  Call Output_Graph
 End Sub
 Private Sub Command_Create_Snapshot_Click()
   If solve_compete = True Then MsgBox "你已经解好啦", , "> _ <": Exit Sub
@@ -431,41 +491,46 @@ Private Sub Command_Reduction_Snapshot_Click()
   Label_Step = "步数: " & total_steps
   Label_Code = snapshot_code
 End Sub
-Private Sub Command_Prompt_Click()
-  If solve_compete = True Then MsgBox "你已经解好啦", , "> _ <": Exit Sub
-  wait_file_name = Label_Code & ".txt"
-  If Dir(Label_Code & ".txt") <> "" Then Kill Label_Code & ".txt"
-  Shell "Engine.exe -q " & Label_Code
-  wait_cancel = False
-  waiting = True
-  prompt_wait_data = True
-  Form_Wait.Show 1
-End Sub
-Private Sub Command_Reset_Click()
-  total_steps = 0
+Private Sub start_playing()
+  playing = True
   total_time = 0
-  Timer_Get_Time.Enabled = False
-  Call init
-  Label_Step = "步数: 0"
-  Label_Code = start_code
-  Label_Time = "用时: 0:00:00"
-  Call Analyse(start_code)
-  Call Output_Graph
+  total_steps = 0
+  Timer_Timing.Enabled = True
+End Sub
+Private Sub case_solve_compete()
+  Timer_Timing = False
+  playing = False
+  solve_compete = True
+  MsgBox "恭喜你成功完成！" & vbCrLf & "编码: " & start_code & vbCrLf & "步数: " & total_steps & vbCrLf & "用时: " & Right(Label_Time, Len(Label_Time) - 4), , "（>__<）"
+End Sub
+Private Sub change_start_case(title As String, code As String)
+  Label_Title.Caption = title & "(" & code & ")"
+  start_code = code
+  Call Command_Reset_Click
+End Sub
+Private Sub prompt_output()
+  Dim temp As String
+  prompt_wait_data = False
+  If wait_cancel = True Then Exit Sub
+  Open Label_Code.Caption & ".txt" For Input As #1
+    Line Input #1, temp
+    If temp = "No Solution" Then
+      MsgBox "无解", , "> _ <"
+    Else
+      Line Input #1, temp
+      Line Input #1, temp
+      last_move = 10
+      If total_steps = 0 Then playing = True: Timer_Timing.Enabled = True
+      total_steps = total_steps + 1
+      Label_Step = "步数: " & total_steps
+      Label_Code = temp
+      Call Analyse(temp)
+      Call Output_Graph
+      If Block(0).address = 13 Then Call case_solve_compete
+    End If
+  Close #1
 End Sub
 Private Sub init()
-  playing = False
-  solve_compete = False
-  Timer_Get_Time.Enabled = False
-  snapshot_step = -1
-  last_move = 10
-  move_times = 0
-  total_steps = 0
-  total_time = 0
-  start_x = 180
-  start_y = 300
-  gap = 105
-  square_width = 1200
-  Call Case_init
   x_split(0) = start_x
   x_split(1) = start_x + gap / 2 + square_width + gap
   x_split(2) = start_x + gap / 2 + (square_width + gap) * 2
@@ -477,8 +542,6 @@ Private Sub init()
   y_split(3) = start_y + gap / 2 + (square_width + gap) * 3
   y_split(4) = start_y + gap / 2 + (square_width + gap) * 4
   y_split(5) = start_y + gap + (square_width + gap) * 5
-  SetWindowPos Me.hwnd, -1, 0, 0, 0, 0, 1 Or 2
-  Print_Block start_x, start_y, square_width * 4 + gap * 5, square_width * 5 + gap * 6, case_line_width, case_color, case_line_color
 End Sub
 Private Sub Move_Block(m As Integer, dir_x As Integer, dir_y As Integer)
   Dim addr As Integer, style As Integer, X As Integer, Y As Integer
@@ -872,60 +935,6 @@ Private Sub Analyse(code As String)
     Next Y
   Next X
 End Sub
-Private Function Check() As Boolean
-  Dim temp(0 To 19) As Boolean
-  Dim addr As Integer, i As Integer, j As Integer
-  For i = 0 To 19
-    temp(i) = False
-  Next i
-  Check = True
-  If Block(0).style <> 0 Or Block(0).address > 20 Or Block(0).address < 0 Then
-    Check = False
-  Else
-    addr = Block(0).address
-    If addr > 14 Or (addr Mod 4 = 3) Then Check = False
-    temp(addr) = True
-    temp(addr + 1) = True
-    temp(addr + 4) = True
-    temp(addr + 5) = True
-  End If
-  For i = 1 To 5
-    If Block(i).address > 20 Or Block(i).address < 0 Then
-      Check = False
-    ElseIf Block(i).style <> 1 And Block(i).style <> 2 Then
-      Check = False
-    Else
-      addr = Block(i).address
-      If Block(i).style = 1 Then
-        If addr > 18 Or (addr Mod 4 = 3) Then Check = False
-        If temp(addr) = True Or temp(addr + 1) = True Then Check = False
-        temp(addr) = True
-        temp(addr + 1) = True
-      End If
-      If Block(i).style = 2 Then
-        If addr > 15 Then Check = False
-        If temp(addr) = True Or temp(addr + 4) = True Then Check = False
-        temp(addr) = True
-        temp(addr + 4) = True
-      End If
-    End If
-  Next i
-  For i = 6 To 9
-    If Block(i).style <> 3 Or Block(i).address > 20 Or Block(i).address < 0 Then
-      Check = False
-    Else
-      addr = Block(i).address
-      If addr > 19 Then Check = False
-      If temp(addr) = True Then Check = False
-      temp(addr) = True
-    End If
-  Next i
-  j = 0
-  For i = 0 To 19
-    If temp(i) = False Then j = j + 1
-  Next i
-  If j <> 2 Then Check = False
-End Function
 Private Sub Analyse_Code(code As String)
   On Error Resume Next
   Dim temp(1 To 12) As Integer
@@ -996,7 +1005,7 @@ Private Sub Analyse_Code(code As String)
   Next i
 err:
 End Sub
-Private Sub Timer_Get_Time_Timer()
+Private Sub Timer_Timing_Timer()
   Static temp As Integer
   Dim time_hour As String, time_minute As String, time_second As String
   If Not temp = Second(Time) Then total_time = total_time + 1: temp = Second(Time)
@@ -1006,6 +1015,27 @@ Private Sub Timer_Get_Time_Timer()
   If Len(time_second) = 1 Then time_second = "0" & time_second
   If Len(time_minute) = 1 Then time_minute = "0" & time_minute
   Label_Time = "用时: " & time_hour & ":" & time_minute & ":" & time_second
+End Sub
+Private Sub Timer_Layout_Timer()
+  Dim width As Integer, temp As String
+  width = gap * 5 + square_width * 4
+  Label_Title.Top = 45
+  Label_Code.Top = 7000
+  Label_Step.Top = 7000
+  Label_Time.Top = 7000
+  Label_Title.Left = (width - Label_Title.width) / 2 + start_x
+  Label_Code.Left = (width - Label_Code.width) / 2 + start_x
+  Label_Step.Left = start_x
+  Label_Time.Left = start_x + width - Label_Time.width
+  If debug_mode = True Then
+    Form_Game.width = 11460
+    Text_Debug.Visible = True
+  Else
+    Form_Game.width = 7380
+    Text_Debug.Visible = False
+  End If
+  If prompt_wait_data = True And waiting = False Then Call prompt_output
+  If change_case = True Then change_case = False: Call change_start_case(change_case_title, change_case_code)
 End Sub
 Private Sub Timer_Debug_Timer()
   Dim i As Integer, j As Integer, m As Integer, debug_dat As String
@@ -1033,79 +1063,22 @@ Private Sub Timer_Debug_Timer()
     Next i
     debug_dat = debug_dat & vbCrLf & vbCrLf
   Next j
-  debug_dat = debug_dat & "dir_x1=" & dir_x1 & " dir_y1=" & dir_y1 & vbCrLf
-  debug_dat = debug_dat & "dir_x2=" & dir_x2 & " dir_y2=" & dir_y2 & vbCrLf
+  debug_dat = debug_dat & "dir_x1=" & dir_x1 & " dir_y1=" & dir_y1 & " dir_x2=" & dir_x2 & " dir_y2=" & dir_y2 & vbCrLf
   debug_dat = debug_dat & "block_addr(0)=(" & block_addr(0).X & "," & block_addr(0).Y & ")" & vbCrLf
   debug_dat = debug_dat & "block_addr(1)=(" & block_addr(1).X & "," & block_addr(1).Y & ")" & vbCrLf
   debug_dat = debug_dat & "block_addr(2)=(" & block_addr(2).X & "," & block_addr(2).Y & ")" & vbCrLf
-  debug_dat = debug_dat & "move_max_step=" & move_max_step & vbCrLf
-  debug_dat = debug_dat & "last_move=" & last_move & vbCrLf
-  debug_dat = debug_dat & "move_times=" & move_times & vbCrLf
+  debug_dat = debug_dat & "mouse_x=" & mouse_x & " mouse_y=" & mouse_y & " mouse_button=" & mouse_button & vbCrLf
+  debug_dat = debug_dat & "move_max_step=" & move_max_step & " last_move=" & last_move & " move_times=" & move_times & vbCrLf
   debug_dat = debug_dat & vbCrLf
-  debug_dat = debug_dat & "total_steps=" & total_steps & vbCrLf
-  debug_dat = debug_dat & "total_time=" & total_time & vbCrLf
+  debug_dat = debug_dat & "total_steps=" & total_steps & " total_time=" & total_time & vbCrLf
+  debug_dat = debug_dat & "snapshot_code=" & snapshot_code & " snapshot_step=" & snapshot_step & vbCrLf
+  debug_dat = debug_dat & "playing=" & playing & " solve_compete=" & solve_compete & vbCrLf
+  debug_dat = debug_dat & "start_code=" & start_code & vbCrLf
+  debug_dat = debug_dat & "debug_mode=" & debug_mode & " on_top=" & on_top & vbCrLf
+  debug_dat = debug_dat & "prompt_wait_data=" & prompt_wait_data & vbCrLf
+  debug_dat = debug_dat & "change_case=" & change_case & vbCrLf
+  debug_dat = debug_dat & "change_case_title=" & change_case_title & vbCrLf
+  debug_dat = debug_dat & "change_case_code=" & change_case_code & vbCrLf
   Text_Debug = debug_dat
 End Sub
-Private Sub Timer_Layout_Timer()
-  Dim width As Integer, temp As String
-  width = gap * 5 + square_width * 4
-  Label_Title.Top = 45
-  Label_Code.Top = 7000
-  Label_Step.Top = 7000
-  Label_Time.Top = 7000
-  Label_Title.Left = (width - Label_Title.width) / 2 + start_x
-  Label_Code.Left = (width - Label_Code.width) / 2 + start_x
-  Label_Step.Left = start_x
-  Label_Time.Left = start_x + width - Label_Time.width
-  If debug_mode = True Then
-    Form_Game.width = 11355
-    Form_Game.height = 8040
-    Text_Debug.Visible = True
-    Timer_Debug.Enabled = True
-  Else
-    Form_Game.width = 7380
-    Form_Game.height = 8040
-    Text_Debug.Visible = False
-    Timer_Debug.Enabled = False
-  End If
-  If change_case = True Then
-    change_case = False
-    Label_Title.Caption = change_case_title & "(" & change_case_code & ")"
-    Call init
-    start_code = change_case_code
-    Label_Step = "步数: 0"
-    Label_Code = start_code
-    Label_Time = "用时: 0:00:00"
-    Call Analyse(start_code)
-    Call Output_Graph
-  End If
-  If prompt_wait_data = True And waiting = False Then
-    prompt_wait_data = False
-    If wait_cancel = True Then Exit Sub
-    Open Label_Code.Caption & ".txt" For Input As #1
-      Line Input #1, temp
-      If temp = "No Solution" Then
-        MsgBox "无解", , "> _ <"
-      Else
-        Line Input #1, temp
-        Line Input #1, temp
-        last_move = 10
-        If total_steps = 0 Then
-          playing = True
-          Timer_Get_Time.Enabled = True
-        End If
-        total_steps = total_steps + 1
-        Label_Step = "步数: " & total_steps
-        Label_Code = temp
-        Call Analyse(temp)
-        Call Output_Graph
-        If Block(0).address = 13 Then
-          Timer_Get_Time = False
-          playing = False
-          solve_compete = True
-          MsgBox "恭喜你成功完成！" & vbCrLf & "编码: " & start_code & vbCrLf & "步数: " & total_steps & vbCrLf & "用时: " & Right(Label_Time, Len(Label_Time) - 4), , "（>__<）"
-        End If
-      End If
-    Close #1
-  End If
-End Sub
+

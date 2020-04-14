@@ -15,18 +15,18 @@ Begin VB.Form Form_Rand_Case
    StartUpPosition =   2  '屏幕中心
    Begin VB.CommandButton Command_Confirm 
       Caption         =   "确定"
-      Height          =   495
+      Height          =   505
       Left            =   3960
-      TabIndex        =   9
-      Top             =   4230
+      TabIndex        =   10
+      Top             =   4210
       Width           =   1335
    End
    Begin VB.CommandButton Command_Create 
       Caption         =   "生成"
-      Height          =   495
+      Height          =   505
       Left            =   3960
-      TabIndex        =   8
-      Top             =   3600
+      TabIndex        =   7
+      Top             =   2580
       Width           =   1335
    End
    Begin VB.TextBox Text_Step 
@@ -43,8 +43,8 @@ Begin VB.Form Form_Rand_Case
       Height          =   375
       Left            =   3960
       Locked          =   -1  'True
-      TabIndex        =   7
-      Top             =   3080
+      TabIndex        =   9
+      Top             =   3720
       Width           =   1335
    End
    Begin VB.TextBox Text_Code 
@@ -61,8 +61,8 @@ Begin VB.Form Form_Rand_Case
       Height          =   375
       Left            =   3960
       Locked          =   -1  'True
-      TabIndex        =   6
-      Top             =   2560
+      TabIndex        =   8
+      Top             =   3240
       Width           =   1335
    End
    Begin VB.Frame Frame 
@@ -72,20 +72,29 @@ Begin VB.Form Form_Rand_Case
       TabIndex        =   0
       Top             =   120
       Width           =   1335
+      Begin VB.OptionButton Option_Difficulty_Rand 
+         Caption         =   "随机"
+         Height          =   180
+         Left            =   240
+         TabIndex        =   6
+         Top             =   1880
+         Value           =   -1  'True
+         Width           =   735
+      End
       Begin VB.OptionButton Option_Difficulty_5 
          Caption         =   "骨灰"
-         Height          =   255
+         Height          =   180
          Left            =   240
          TabIndex        =   5
-         Top             =   1800
+         Top             =   1560
          Width           =   735
       End
       Begin VB.OptionButton Option_Difficulty_4 
          Caption         =   "困难"
-         Height          =   255
+         Height          =   180
          Left            =   240
          TabIndex        =   4
-         Top             =   1440
+         Top             =   1240
          Width           =   735
       End
       Begin VB.OptionButton Option_Difficulty_3 
@@ -93,7 +102,7 @@ Begin VB.Form Form_Rand_Case
          Height          =   180
          Left            =   240
          TabIndex        =   3
-         Top             =   1080
+         Top             =   920
          Width           =   735
       End
       Begin VB.OptionButton Option_Difficulty_2 
@@ -101,7 +110,7 @@ Begin VB.Form Form_Rand_Case
          Height          =   180
          Left            =   240
          TabIndex        =   2
-         Top             =   720
+         Top             =   600
          Width           =   735
       End
       Begin VB.OptionButton Option_Difficulty_1 
@@ -109,7 +118,7 @@ Begin VB.Form Form_Rand_Case
          Height          =   180
          Left            =   240
          TabIndex        =   1
-         Top             =   360
+         Top             =   280
          Width           =   735
       End
    End
@@ -120,11 +129,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
-Private Type Case_Block
-  address As Integer
-  style As Integer
-End Type
-Dim Block(0 To 9) As Case_Block
+Dim Block(0 To 9) As Block_struct
 Dim Rand_Cases(1 To 8000) As String
 Dim start_x As Integer, start_y As Integer, square_width As Integer, gap As Integer
 Private Sub Form_Load()
@@ -155,12 +160,12 @@ End Sub
 Private Sub Command_Create_Click()
   Dim min_step As Integer, max_step As Integer
   Dim index As Long, code As String, step As Integer
-  If Option_Difficulty_1.Value = False And Option_Difficulty_2.Value = False And Option_Difficulty_3.Value = False And Option_Difficulty_4.Value = False And Option_Difficulty_5.Value = False Then min_step = 0: max_step = 138
   If Option_Difficulty_1.Value = True Then min_step = 0: max_step = 20
   If Option_Difficulty_2.Value = True Then min_step = 21: max_step = 50
   If Option_Difficulty_3.Value = True Then min_step = 51: max_step = 80
   If Option_Difficulty_4.Value = True Then min_step = 81: max_step = 100
   If Option_Difficulty_5.Value = True Then min_step = 101: max_step = 138
+  If Option_Difficulty_Rand.Value = True Then min_step = 0: max_step = 138
   Randomize
 retry:
   index = Int(Rnd * 8000) + 1
@@ -187,6 +192,9 @@ End Sub
 Private Sub Option_Difficulty_5_Click()
   Call Command_Create_Click
 End Sub
+Private Sub Option_Difficulty_Rand_Click()
+  Call Command_Create_Click
+End Sub
 Private Sub Get_Rand_Data()
   Dim i As Long
   Dim temp As String
@@ -199,13 +207,13 @@ Private Sub Get_Rand_Data()
   Close #1
 End Sub
 Private Sub Output_Graph()
-  Dim m, x, y As Integer
+  Dim m, X, Y As Integer
   Dim width As Integer, height As Integer
   Print_Block start_x, start_y, square_width * 4 + gap * 5, square_width * 5 + gap * 6, case_line_width, case_color, case_line_color
   For m = 0 To 9
     If Block(m).address <> 25 Then
-      x = (Block(m).address Mod 4) * (square_width + gap) + gap + start_x
-      y = Int(Block(m).address / 4) * (square_width + gap) + gap + start_y
+      X = (Block(m).address Mod 4) * (square_width + gap) + gap + start_x
+      Y = Int(Block(m).address / 4) * (square_width + gap) + gap + start_y
       If Block(m).style = 0 Or Block(m).style = 1 Then
         width = square_width * 2 + gap
       Else
@@ -216,7 +224,7 @@ Private Sub Output_Graph()
       Else
         height = square_width
       End If
-      Print_Block x, y, width, height, block_line_width, block_color, block_line_color
+      Print_Block X, Y, width, height, block_line_width, block_color, block_line_color
     End If
   Next m
 End Sub

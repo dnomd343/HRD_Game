@@ -10,6 +10,15 @@ Public Type FILETIME
   dwLowDateTime As Long
   dwHighDateTime As Long
 End Type
+Public Type Block_struct
+  address As Integer
+  style As Integer
+End Type
+Public Type Layer_struct
+  size As Integer
+  layer_dat() As String
+End Type
+
 Public Const HKEY_CLASSES_ROOT = &H80000000
 Public Const HKEY_CURRENT_CONFIG = &H80000005
 Public Const HKEY_CURRENT_USER = &H80000001
@@ -17,15 +26,18 @@ Public Const HKEY_DYN_DATA = &H80000006
 Public Const HKEY_LOCAL_MACHINE = &H80000002
 Public Const HKEY_USERS = &H80000003
 
-Public debug_mode As Boolean, on_top As Boolean, playing As Boolean, solve_compete As Boolean
+Public debug_mode As Boolean, on_top As Boolean
+Public playing As Boolean, solve_compete As Boolean
 Public block_line_width As Integer, case_line_width As Integer
 Public block_color, block_line_color, case_color, case_line_color
-Public change_case As Boolean, change_case_title As String, change_case_code As String
+
+Public change_case As Boolean, change_case_title As String, change_case_code As String, start_code As String
+
 Public Favourite_Cases_name() As String, Favourite_Cases_code() As String
 Public favourite_add_name As String, favourite_add_code As String, favourite_add_confirm As Boolean
 Public favourite_add_init_name As String, favourite_add_init_code As String, favourite_add_save As Boolean
 Public wait_file_name As String, wait_cancel As Boolean, waiting As Boolean
-Public start_code As String
+Public layer() As Layer_struct
 Public Sub FindKeys(hkey As Long, SubKey As String)
   Dim phkRet As Long, lRet As Long, index As Long, lName As Long, lReserved As Long, lClass As Long
   Dim name As String, Class As String
@@ -75,5 +87,14 @@ Public Sub Save_Favourite_Cases()
     w.regWrite "HKEY_CURRENT_USER\Software\HRD_Game\Favourite\" & temp & "." & Favourite_Cases_name(i) & "\", Favourite_Cases_code(i), "REG_SZ"
   Next i
 End Sub
-
+Sub main()
+  block_line_width = 1
+  case_line_width = 2
+  block_line_color = RGB(0, 158, 240)
+  case_line_color = RGB(0, 158, 240)
+  block_color = RGB(225, 245, 255)
+  case_color = RGB(248, 254, 255)
+  'Form_Game.Show
+  Form_Start.Show
+End Sub
 

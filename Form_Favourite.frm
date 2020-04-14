@@ -6,13 +6,26 @@ Begin VB.Form Form_Favourite
    ClientHeight    =   4590
    ClientLeft      =   45
    ClientTop       =   390
-   ClientWidth     =   6765
+   ClientWidth     =   6750
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
    ScaleHeight     =   4590
-   ScaleWidth      =   6765
+   ScaleWidth      =   6750
    StartUpPosition =   2  '屏幕中心
+   Begin VB.Timer Timer_Debug 
+      Interval        =   200
+      Left            =   0
+      Top             =   0
+   End
+   Begin VB.TextBox Text_Debug 
+      Height          =   4365
+      Left            =   6750
+      MultiLine       =   -1  'True
+      TabIndex        =   8
+      Top             =   120
+      Width           =   2895
+   End
    Begin VB.TextBox Text_Code 
       Alignment       =   2  'Center
       BeginProperty Font 
@@ -27,44 +40,60 @@ Begin VB.Form Form_Favourite
       Height          =   495
       Left            =   3720
       Locked          =   -1  'True
-      TabIndex        =   5
-      Top             =   3960
+      TabIndex        =   7
+      Top             =   3975
       Width           =   1935
    End
    Begin VB.CommandButton Command_Confirm 
       Caption         =   "确定"
       Height          =   495
       Left            =   5640
-      TabIndex        =   4
-      Top             =   3960
+      TabIndex        =   6
+      Top             =   3975
       Width           =   975
    End
    Begin VB.CommandButton Command_Delete 
       Caption         =   "删除"
-      Height          =   495
+      Height          =   480
       Left            =   5640
-      TabIndex        =   3
-      Top             =   3480
+      TabIndex        =   5
+      Top             =   3510
       Width           =   975
    End
    Begin VB.CommandButton Command_Modify 
       Caption         =   "修改"
-      Height          =   495
+      Height          =   480
       Left            =   4680
-      TabIndex        =   2
-      Top             =   3480
+      TabIndex        =   4
+      Top             =   3510
       Width           =   975
    End
    Begin VB.CommandButton Command_Add 
       Caption         =   "添加"
-      Height          =   495
+      Height          =   480
       Left            =   3720
-      TabIndex        =   1
-      Top             =   3480
+      TabIndex        =   3
+      Top             =   3510
       Width           =   975
    End
+   Begin VB.CommandButton Command_Down 
+      Caption         =   "下移"
+      Height          =   465
+      Left            =   5160
+      TabIndex        =   2
+      Top             =   3060
+      Width           =   1455
+   End
+   Begin VB.CommandButton Command_Up 
+      Caption         =   "上移"
+      Height          =   465
+      Left            =   3720
+      TabIndex        =   1
+      Top             =   3060
+      Width           =   1455
+   End
    Begin VB.ListBox List_Favourite 
-      Height          =   3300
+      Height          =   2940
       ItemData        =   "Form_Favourite.frx":0000
       Left            =   3720
       List            =   "Form_Favourite.frx":0002
@@ -84,18 +113,21 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
-Private Type Case_Block
-  address As Integer
-  style As Integer
-End Type
 Dim change_mode As Boolean
-Dim Block(0 To 9) As Case_Block
+Dim Block(0 To 9) As Block_struct
 Dim start_x As Integer, start_y As Integer, square_width As Integer, gap As Integer
 Private Sub Form_Load()
   start_x = 135
   start_y = 135
   square_width = 770
   gap = 75
+  If debug_mode = True Then
+    Form_Favourite.width = 9860
+    Text_Debug.Visible = True
+  Else
+    Form_Favourite.width = 6845
+    Text_Debug.Visible = False
+  End If
   If on_top = True Then
     SetWindowPos Me.hwnd, -1, 0, 0, 0, 0, 1 Or 2
   Else
@@ -113,6 +145,28 @@ Private Sub Command_Confirm_Click()
   change_case_code = Text_Code
   change_case = True
   Unload Form_Favourite
+End Sub
+Private Sub Command_Up_Click()
+  Dim temp As String, num As Integer
+  If List_Favourite.ListCount <= 1 Then Exit Sub
+  If List_Favourite.ListIndex = 0 Then Exit Sub
+  num = List_Favourite.ListIndex
+  temp = List_Favourite.List(num)
+  List_Favourite.RemoveItem num
+  List_Favourite.AddItem temp, num - 1
+  List_Favourite.ListIndex = num - 1
+  Call Save_Data
+End Sub
+Private Sub Command_Down_Click()
+  Dim temp As String, num As Integer
+  If List_Favourite.ListCount <= 1 Then Exit Sub
+  If List_Favourite.ListIndex = List_Favourite.ListCount - 1 Then Exit Sub
+  num = List_Favourite.ListIndex
+  temp = List_Favourite.List(num)
+  List_Favourite.RemoveItem num
+  List_Favourite.AddItem temp, num + 1
+  List_Favourite.ListIndex = num + 1
+  Call Save_Data
 End Sub
 Private Sub Command_Add_Click()
   change_mode = False
@@ -285,4 +339,18 @@ Private Sub Analyse_Code(code As String)
     End If
   Next i
 err:
+End Sub
+Private Sub Timer_Debug_Timer()
+  Dim debug_dat As String
+  debug_dat = debug_dat & "Favourite_Cases_name->" & UBound(Favourite_Cases_name) & vbCrLf
+  debug_dat = debug_dat & "Favourite_Cases_code->" & UBound(Favourite_Cases_code) & vbCrLf
+  debug_dat = debug_dat & vbCrLf
+  debug_dat = debug_dat & "favourite_add_name" & vbCrLf & "=" & favourite_add_name & vbCrLf & vbCrLf
+  debug_dat = debug_dat & "favourite_add_code" & vbCrLf & "=" & favourite_add_code & vbCrLf & vbCrLf
+  debug_dat = debug_dat & "favourite_add_init_name" & vbCrLf & "=" & favourite_add_init_name & vbCrLf & vbCrLf
+  debug_dat = debug_dat & "favourite_add_init_code" & vbCrLf & "=" & favourite_add_init_code & vbCrLf & vbCrLf
+  debug_dat = debug_dat & "favourite_add_confirm=" & favourite_add_confirm & vbCrLf & vbCrLf
+  debug_dat = debug_dat & "favourite_add_save=" & favourite_add_save & vbCrLf & vbCrLf
+  debug_dat = debug_dat & "change_mode=" & change_mode & vbCrLf
+  Text_Debug = debug_dat
 End Sub
