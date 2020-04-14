@@ -138,16 +138,16 @@ Private Sub Form_Load()
     SetWindowPos Me.hwnd, -2, 0, 0, 0, 0, 1 Or 2
   End If
   Call Get_Rand_Data
-  Print_Block start_x, start_y, square_width * 4 + gap * 5, square_width * 5 + gap * 6, case_line_width, case_color, case_line_color
+  Call Command_Create_Click
 End Sub
 Private Sub Command_Confirm_Click()
-  If Option_Difficulty_1.Value = False And Option_Difficulty_2.Value = False And Option_Difficulty_3.Value = False And Option_Difficulty_4.Value = False And Option_Difficulty_5.Value = False Then Exit Sub
-  change_case_title = "随机 - "
+  change_case_title = "随机-"
   If Option_Difficulty_1.Value = True Then change_case_title = change_case_title & "入门"
   If Option_Difficulty_2.Value = True Then change_case_title = change_case_title & "进阶"
   If Option_Difficulty_3.Value = True Then change_case_title = change_case_title & "中阶"
   If Option_Difficulty_4.Value = True Then change_case_title = change_case_title & "困难"
   If Option_Difficulty_5.Value = True Then change_case_title = change_case_title & "骨灰"
+  If change_case_title = "随机-" Then change_case_title = "随机"
   change_case_code = Text_Code
   change_case = True
   Unload Form_Rand_Case
@@ -155,7 +155,7 @@ End Sub
 Private Sub Command_Create_Click()
   Dim min_step As Integer, max_step As Integer
   Dim index As Long, code As String, step As Integer
-  If Option_Difficulty_1.Value = False And Option_Difficulty_2.Value = False And Option_Difficulty_3.Value = False And Option_Difficulty_4.Value = False And Option_Difficulty_5.Value = False Then Exit Sub
+  If Option_Difficulty_1.Value = False And Option_Difficulty_2.Value = False And Option_Difficulty_3.Value = False And Option_Difficulty_4.Value = False And Option_Difficulty_5.Value = False Then min_step = 0: max_step = 138
   If Option_Difficulty_1.Value = True Then min_step = 0: max_step = 20
   If Option_Difficulty_2.Value = True Then min_step = 21: max_step = 50
   If Option_Difficulty_3.Value = True Then min_step = 51: max_step = 80
@@ -171,6 +171,21 @@ retry:
   Text_Step = step & "步"
   Call Analyse_Code(code)
   Call Output_Graph
+End Sub
+Private Sub Option_Difficulty_1_Click()
+  Call Command_Create_Click
+End Sub
+Private Sub Option_Difficulty_2_Click()
+  Call Command_Create_Click
+End Sub
+Private Sub Option_Difficulty_3_Click()
+  Call Command_Create_Click
+End Sub
+Private Sub Option_Difficulty_4_Click()
+  Call Command_Create_Click
+End Sub
+Private Sub Option_Difficulty_5_Click()
+  Call Command_Create_Click
 End Sub
 Private Sub Get_Rand_Data()
   Dim i As Long

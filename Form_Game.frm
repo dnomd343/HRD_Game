@@ -2,7 +2,7 @@ VERSION 5.00
 Begin VB.Form Form_Game 
    AutoRedraw      =   -1  'True
    BorderStyle     =   1  'Fixed Single
-   Caption         =   "HRD Game v1.2 by Dnomd343"
+   Caption         =   "HRD Game v1.3 by Dnomd343"
    ClientHeight    =   7305
    ClientLeft      =   45
    ClientTop       =   690
@@ -14,6 +14,22 @@ Begin VB.Form Form_Game
    ScaleHeight     =   7305
    ScaleWidth      =   7290
    StartUpPosition =   2  '屏幕中心
+   Begin VB.CommandButton Command_Reduction_Snapshot 
+      Caption         =   "还原快照"
+      Height          =   495
+      Left            =   5760
+      TabIndex        =   10
+      Top             =   3480
+      Width           =   1335
+   End
+   Begin VB.CommandButton Command_Create_Snapshot 
+      Caption         =   "创建快照"
+      Height          =   495
+      Left            =   5760
+      TabIndex        =   9
+      Top             =   2880
+      Width           =   1335
+   End
    Begin VB.CommandButton Command_Rand_Case 
       Caption         =   "随机生成布局"
       Height          =   495
@@ -48,7 +64,7 @@ Begin VB.Form Form_Game
       Height          =   495
       Left            =   5760
       TabIndex        =   1
-      Top             =   2760
+      Top             =   4080
       Width           =   1335
    End
    Begin VB.Timer Timer_Get_Time 
@@ -138,6 +154,28 @@ Dim mouse_x As Long, mouse_y As Long, mouse_button As Integer
 Dim last_move As Integer, move_times As Integer
 Dim total_steps As Long, total_time As Long
 Dim Start_Code As String
+Dim snapshot_code As String, snapshot_step As Long
+
+Private Sub Command_Create_Snapshot_Click()
+  If solve_compete = True Then MsgBox "你已经解好啦", , "> _ <": Exit Sub
+  If playing = False Then MsgBox "你还没开始呢", , "> _ <": Exit Sub
+  snapshot_code = Label_Code
+  snapshot_step = total_steps
+  MsgBox "快照创建成功" & vbCrLf & "编码: " & snapshot_code & vbCrLf & "步数: " & snapshot_step, , "> _ <"
+End Sub
+
+Private Sub Command_Reduction_Snapshot_Click()
+  If solve_compete = True Then MsgBox "你已经解好啦", , "> _ <": Exit Sub
+  If playing = False Then MsgBox "你还没开始呢", , "> _ <": Exit Sub
+  If snapshot_step = -1 Then MsgBox "你还没创建快照呢", , "> _ <": Exit Sub
+  If MsgBox("真要还原快照?", vbOKCancel, "^ - ^") = vbCancel Then Exit Sub
+  total_steps = snapshot_step
+  last_move = 10
+  Call Analyse(snapshot_code)
+  Call Output_Graph
+  Label_Step = "步数: " & total_steps
+  Label_Code = snapshot_code
+End Sub
 
 Private Sub Menu_Debug_Mode_Click()
   Menu_Debug_Mode.Checked = Not Menu_Debug_Mode.Checked
@@ -275,9 +313,11 @@ End Sub
 Private Sub init()
   playing = False
   solve_compete = False
+  snapshot_step = -1
   last_move = 10
   move_times = 0
   total_steps = 0
+  total_time = 0
   start_x = 180
   start_y = 300
   gap = 105
