@@ -180,12 +180,16 @@ Private Sub Timer_Get_Data_Timer()
   Combo_Detail.Enabled = Not loading
   If wait_data = True And waiting = False Then
     wait_data = False
-    MsgBox Form_Game.Label_Title, , "> _ <"
-    Call Get_Data(start_code & ".txt")
-    dat = "共衍生出" & group_size & "种布局" & vbCrLf & "最远为" & farthest_steps & "步" & vbCrLf
-    If min_steps = -1 Then dat = dat & "无解" Else dat = dat & "最少需要" & min_steps & "步"
-    MsgBox dat, , "> _ <"
-    Combo_Detail.ListIndex = 0
+    If wait_cancel = True Then
+      Unload Form_Detail
+    Else
+      MsgBox Form_Game.Label_Title, , "> _ <"
+      Call Get_Data(start_code & ".txt")
+      dat = "共衍生出" & group_size & "种布局" & vbCrLf & "最远为" & farthest_steps & "步" & vbCrLf
+      If min_steps = -1 Then dat = dat & "无解" Else dat = dat & "最少需要" & min_steps & "步"
+      MsgBox dat, , "> _ <"
+      Combo_Detail.ListIndex = 0
+    End If
   End If
 End Sub
 Private Sub Command_Analyse_Click()

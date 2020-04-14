@@ -154,7 +154,11 @@ End Sub
 Private Sub Timer_Get_Data_Timer()
   If wait_data = True And waiting = False Then
     wait_data = False
-    Call Get_Data(start_code & ".txt")
+    If wait_cancel = True Then
+      Unload Form_Solution
+    Else
+      Call Get_Data(start_code & ".txt")
+    End If
   End If
 End Sub
 Private Sub Get_Data(file_name As String)

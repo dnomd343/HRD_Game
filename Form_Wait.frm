@@ -45,7 +45,7 @@ Begin VB.Form Form_Wait
       Height          =   465
       Left            =   0
       TabIndex        =   0
-      ToolTipText     =   "双击可取消哦"
+      ToolTipText     =   "双击可取消"
       Top             =   0
       Width           =   1920
    End
@@ -71,6 +71,7 @@ Private Sub Form_Load()
   End If
   wait_cancel = False
   waiting = True
+  Label_Wait.BackColor = case_color
 End Sub
 Private Sub Label_Wait_DblClick()
   If MsgBox("真要取消么?", vbYesNo, "> _ <") = vbNo Then Exit Sub

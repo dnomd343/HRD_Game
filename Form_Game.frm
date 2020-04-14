@@ -2,7 +2,7 @@ VERSION 5.00
 Begin VB.Form Form_Game 
    AutoRedraw      =   -1  'True
    BorderStyle     =   1  'Fixed Single
-   Caption         =   "HRD Game v1.8 by Dnomd343"
+   Caption         =   "HRD Game v1.9 by Dnomd343"
    ClientHeight    =   7305
    ClientLeft      =   45
    ClientTop       =   690
@@ -11,6 +11,7 @@ Begin VB.Form Form_Game
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
+   MouseIcon       =   "Form_Game.frx":19442
    ScaleHeight     =   7305
    ScaleWidth      =   7290
    StartUpPosition =   2  '屏幕中心
@@ -159,6 +160,22 @@ Begin VB.Form Form_Game
       Top             =   7000
       Width           =   90
    End
+   Begin VB.Menu Menu_Exterior 
+      Caption         =   "外观"
+      Begin VB.Menu Menu_Exterior_White 
+         Caption         =   "极简白"
+      End
+      Begin VB.Menu Menu_Exterior_Blue 
+         Caption         =   "胖次蓝"
+         Checked         =   -1  'True
+      End
+      Begin VB.Menu Menu_Exterior_Yellow 
+         Caption         =   "土豪金"
+      End
+      Begin VB.Menu Menu_Exterior_Green 
+         Caption         =   "原谅绿"
+      End
+   End
    Begin VB.Menu Menu_Setting 
       Caption         =   "设置"
       Begin VB.Menu Menu_On_Top 
@@ -200,6 +217,58 @@ Private Sub Menu_Debug_Mode_Click()
   Menu_Debug_Mode.Checked = Not Menu_Debug_Mode.Checked
   If Menu_Debug_Mode.Checked = True Then debug_mode = True Else debug_mode = False
 End Sub
+Private Sub Menu_Exterior_White_Click()
+  block_line_width = 1
+  case_line_width = 2
+  block_line_color = RGB(0, 0, 0)
+  case_line_color = RGB(0, 0, 0)
+  block_color = RGB(250, 250, 250)
+  case_color = RGB(256, 256, 256)
+  Menu_Exterior_White.Checked = True
+  Menu_Exterior_Blue.Checked = False
+  Menu_Exterior_Yellow.Checked = False
+  Menu_Exterior_Green.Checked = False
+  Call Output_Graph
+End Sub
+Private Sub Menu_Exterior_Blue_Click()
+  block_line_width = 1
+  case_line_width = 2
+  block_line_color = RGB(0, 158, 240)
+  case_line_color = RGB(0, 158, 240)
+  block_color = RGB(225, 245, 255)
+  case_color = RGB(248, 254, 255)
+  Menu_Exterior_White.Checked = False
+  Menu_Exterior_Blue.Checked = True
+  Menu_Exterior_Yellow.Checked = False
+  Menu_Exterior_Green.Checked = False
+  Call Output_Graph
+End Sub
+Private Sub Menu_Exterior_Yellow_Click()
+  block_line_width = 1
+  case_line_width = 3
+  block_line_color = RGB(153, 0, 0)
+  case_line_color = RGB(149, 149, 149)
+  block_color = RGB(255, 215, 0)
+  case_color = RGB(231, 231, 231)
+  Menu_Exterior_White.Checked = False
+  Menu_Exterior_Blue.Checked = False
+  Menu_Exterior_Yellow.Checked = True
+  Menu_Exterior_Green.Checked = False
+  Call Output_Graph
+End Sub
+Private Sub Menu_Exterior_Green_Click()
+  block_line_width = 1
+  case_line_width = 2
+  block_line_color = RGB(61, 184, 78)
+  case_line_color = RGB(46, 118, 72)
+  block_color = RGB(61, 184, 78)
+  case_color = RGB(233, 247, 212)
+  Menu_Exterior_White.Checked = False
+  Menu_Exterior_Blue.Checked = False
+  Menu_Exterior_Yellow.Checked = False
+  Menu_Exterior_Green.Checked = True
+  Call Output_Graph
+End Sub
 Private Sub Menu_On_Top_Click()
   Menu_On_Top.Checked = Not Menu_On_Top.Checked
   on_top = Menu_On_Top.Checked
@@ -210,8 +279,15 @@ Private Sub Menu_On_Top_Click()
   End If
 End Sub
 Private Sub Form_Load()
+  Me.Icon = Me.MouseIcon
   debug_mode = False
   on_top = True
+  block_line_width = 1
+  case_line_width = 2
+  block_line_color = RGB(0, 158, 240)
+  case_line_color = RGB(0, 158, 240)
+  block_color = RGB(225, 245, 255)
+  case_color = RGB(248, 254, 255)
   Call init
 End Sub
 Private Sub Form_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
@@ -389,12 +465,6 @@ Private Sub init()
   start_y = 300
   gap = 105
   square_width = 1200
-  block_line_width = 1
-  case_line_width = 2
-  block_line_color = RGB(0, 0, 0)
-  case_line_color = RGB(0, 0, 0)
-  block_color = RGB(250, 250, 250)
-  case_color = RGB(256, 256, 256)
   Call Case_init
   x_split(0) = start_x
   x_split(1) = start_x + gap / 2 + square_width + gap
@@ -408,6 +478,7 @@ Private Sub init()
   y_split(4) = start_y + gap / 2 + (square_width + gap) * 4
   y_split(5) = start_y + gap + (square_width + gap) * 5
   SetWindowPos Me.hwnd, -1, 0, 0, 0, 0, 1 Or 2
+  Print_Block start_x, start_y, square_width * 4 + gap * 5, square_width * 5 + gap * 6, case_line_width, case_color, case_line_color
 End Sub
 Private Sub Move_Block(m As Integer, dir_x As Integer, dir_y As Integer)
   Dim addr As Integer, style As Integer, X As Integer, Y As Integer
@@ -1010,6 +1081,7 @@ Private Sub Timer_Layout_Timer()
   End If
   If prompt_wait_data = True And waiting = False Then
     prompt_wait_data = False
+    If wait_cancel = True Then Exit Sub
     Open Label_Code.Caption & ".txt" For Input As #1
       Line Input #1, temp
       If temp = "No Solution" Then
