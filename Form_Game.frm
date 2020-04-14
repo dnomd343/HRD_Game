@@ -2,7 +2,7 @@ VERSION 5.00
 Begin VB.Form Form_Game 
    AutoRedraw      =   -1  'True
    BorderStyle     =   1  'Fixed Single
-   Caption         =   "HRD Game v1.4 by Dnomd343"
+   Caption         =   "HRD Game v1.5 by Dnomd343"
    ClientHeight    =   7305
    ClientLeft      =   45
    ClientTop       =   690
@@ -14,6 +14,14 @@ Begin VB.Form Form_Game
    ScaleHeight     =   7305
    ScaleWidth      =   7290
    StartUpPosition =   2  '屏幕中心
+   Begin VB.CommandButton Command_Add_Favourite 
+      Caption         =   "加入收藏"
+      Height          =   495
+      Left            =   5760
+      TabIndex        =   12
+      Top             =   3480
+      Width           =   1335
+   End
    Begin VB.CommandButton Command_Favourite 
       Caption         =   "我的收藏"
       Height          =   495
@@ -27,7 +35,7 @@ Begin VB.Form Form_Game
       Height          =   495
       Left            =   5760
       TabIndex        =   10
-      Top             =   4080
+      Top             =   4680
       Width           =   1335
    End
    Begin VB.CommandButton Command_Create_Snapshot 
@@ -35,7 +43,7 @@ Begin VB.Form Form_Game
       Height          =   495
       Left            =   5760
       TabIndex        =   9
-      Top             =   3480
+      Top             =   4080
       Width           =   1335
    End
    Begin VB.CommandButton Command_Rand_Case 
@@ -72,7 +80,7 @@ Begin VB.Form Form_Game
       Height          =   495
       Left            =   5760
       TabIndex        =   1
-      Top             =   4680
+      Top             =   5280
       Width           =   1335
    End
    Begin VB.Timer Timer_Get_Time 
@@ -148,8 +156,8 @@ Private Type Case_Block
   style As Integer
 End Type
 Private Type Block_Address
-  x As Integer
-  y As Integer
+  X As Integer
+  Y As Integer
 End Type
 Dim Block(0 To 9) As Case_Block
 Dim Exist(1 To 4, 1 To 5) As Boolean
@@ -163,6 +171,8 @@ Dim last_move As Integer, move_times As Integer
 Dim total_steps As Long, total_time As Long
 Dim Start_Code As String
 Dim snapshot_code As String, snapshot_step As Long
+
+
 Private Sub Menu_Debug_Mode_Click()
   Menu_Debug_Mode.Checked = Not Menu_Debug_Mode.Checked
   If Menu_Debug_Mode.Checked = True Then debug_mode = True Else debug_mode = False
@@ -179,16 +189,16 @@ End Sub
 Private Sub Form_Load()
   Call init
 End Sub
-Private Sub Form_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
+Private Sub Form_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
   mouse_button = Button
-  mouse_x = x
-  mouse_y = y
+  mouse_x = X
+  mouse_y = Y
 End Sub
 Private Sub Form_DblClick()
   Call Form_Click
 End Sub
 Private Sub Form_Click()
-  Dim m As Integer, x As Integer, y As Integer
+  Dim m As Integer, X As Integer, Y As Integer
   If mouse_x < start_x Or mouse_x > start_x + square_width * 4 + gap * 5 Then Exit Sub
   If mouse_y < start_y Or mouse_y > start_y + square_width * 5 + gap * 6 Then Exit Sub
   If solve_compete = True Then Exit Sub
@@ -200,32 +210,32 @@ Private Sub Form_Click()
     total_steps = 0
     Timer_Get_Time.Enabled = True
   End If
-  y = Int(Block(m).address / 4) + 1
-  x = Block(m).address - (y - 1) * 4 + 1
+  Y = Int(Block(m).address / 4) + 1
+  X = Block(m).address - (Y - 1) * 4 + 1
   If m = last_move Then
     If move_max_step = 1 Then
       If dir_x2 = 0 And dir_y2 = 0 Then
         If move_times Mod 2 = 1 Then
-          Call Move_Block(m, block_addr(0).x - x, block_addr(0).y - y)
+          Call Move_Block(m, block_addr(0).X - X, block_addr(0).Y - Y)
         Else
-          Call Move_Block(m, block_addr(1).x - x, block_addr(1).y - y)
+          Call Move_Block(m, block_addr(1).X - X, block_addr(1).Y - Y)
         End If
       Else
         If mouse_button = 1 Then
           If move_times Mod 4 = 0 Then
-            Call Move_Block(m, block_addr(1).x - x, block_addr(1).y - y)
+            Call Move_Block(m, block_addr(1).X - X, block_addr(1).Y - Y)
           ElseIf move_times Mod 4 = 1 Then
-            Call Move_Block(m, block_addr(0).x - x, block_addr(0).y - y)
+            Call Move_Block(m, block_addr(0).X - X, block_addr(0).Y - Y)
           ElseIf move_times Mod 4 = 2 Then
-            Call Move_Block(m, block_addr(2).x - x, block_addr(2).y - y)
+            Call Move_Block(m, block_addr(2).X - X, block_addr(2).Y - Y)
           Else
-            Call Move_Block(m, block_addr(0).x - x, block_addr(0).y - y)
+            Call Move_Block(m, block_addr(0).X - X, block_addr(0).Y - Y)
           End If
         ElseIf mouse_button = 2 Then
           If move_times Mod 2 = 0 Then
-            Call Move_Block(m, block_addr(1).x - x, block_addr(1).y - y)
+            Call Move_Block(m, block_addr(1).X - X, block_addr(1).Y - Y)
           ElseIf move_times Mod 2 = 1 Then
-            Call Move_Block(m, block_addr(2).x - x, block_addr(2).y - y)
+            Call Move_Block(m, block_addr(2).X - X, block_addr(2).Y - Y)
           End If
         End If
       End If
@@ -234,17 +244,17 @@ Private Sub Form_Click()
         If move_times Mod 4 = 0 Then
           Call Move_Block(m, dir_x1, dir_y1)
         ElseIf move_times Mod 4 = 1 Then
-          Call Move_Block(m, block_addr(2).x - x, block_addr(2).y - y)
+          Call Move_Block(m, block_addr(2).X - X, block_addr(2).Y - Y)
         ElseIf move_times Mod 4 = 2 Then
-          Call Move_Block(m, block_addr(1).x - x, block_addr(1).y - y)
+          Call Move_Block(m, block_addr(1).X - X, block_addr(1).Y - Y)
         Else
-          Call Move_Block(m, block_addr(0).x - x, block_addr(0).y - y)
+          Call Move_Block(m, block_addr(0).X - X, block_addr(0).Y - Y)
         End If
       ElseIf mouse_button = 2 Then
         If move_times Mod 2 = 0 Then
-          Call Move_Block(m, block_addr(2).x - x, block_addr(2).y - y)
+          Call Move_Block(m, block_addr(2).X - X, block_addr(2).Y - Y)
         ElseIf move_times Mod 2 = 1 Then
-          Call Move_Block(m, block_addr(0).x - x, block_addr(0).y - y)
+          Call Move_Block(m, block_addr(0).X - X, block_addr(0).Y - Y)
         End If
       End If
     End If
@@ -256,13 +266,13 @@ Private Sub Form_Click()
     If move_max_step = 0 Then Exit Sub
     total_steps = total_steps + 1
     If mouse_button = 1 Then
-      Call Move_Block(m, block_addr(1).x - x, block_addr(1).y - y)
+      Call Move_Block(m, block_addr(1).X - X, block_addr(1).Y - Y)
     End If
     If mouse_button = 2 Then
       If move_max_step = 1 Then
-        Call Move_Block(m, block_addr(1).x - x, block_addr(1).y - y)
+        Call Move_Block(m, block_addr(1).X - X, block_addr(1).Y - Y)
       ElseIf move_max_step = 2 Then
-        Call Move_Block(m, block_addr(2).x - x, block_addr(2).y - y)
+        Call Move_Block(m, block_addr(2).X - X, block_addr(2).Y - Y)
       End If
     End If
   End If
@@ -288,6 +298,12 @@ End Sub
 Private Sub Command_Favourite_Click()
   favourite_add_confirm = False
   Form_Favourite.Show 1
+End Sub
+Private Sub Command_Add_Favourite_Click()
+  favourite_add_save = True
+  favourite_add_init_code = Label_Code
+  If playing = False And solve_compete = False Then favourite_add_init_name = Left(Label_Title, Len(Label_Title) - 9) Else favourite_add_init_name = ""
+  Form_Favourite_Add.Show 1
 End Sub
 Private Sub Command_Create_Snapshot_Click()
   If solve_compete = True Then MsgBox "你已经解好啦", , "> _ <": Exit Sub
@@ -322,6 +338,7 @@ End Sub
 Private Sub init()
   playing = False
   solve_compete = False
+  Timer_Get_Time.Enabled = False
   snapshot_step = -1
   last_move = 10
   move_times = 0
@@ -351,216 +368,216 @@ Private Sub init()
   y_split(5) = start_y + gap + (square_width + gap) * 5
 End Sub
 Private Sub Move_Block(m As Integer, dir_x As Integer, dir_y As Integer)
-  Dim addr As Integer, style As Integer, x As Integer, y As Integer
+  Dim addr As Integer, style As Integer, X As Integer, Y As Integer
   addr = Block(m).address
   style = Block(m).style
-  y = Int(addr / 4) + 1
-  x = addr - (y - 1) * 4 + 1
-  x = x + dir_x
-  y = y + dir_y
-  addr = (y - 1) * 4 + x - 1
+  Y = Int(addr / 4) + 1
+  X = addr - (Y - 1) * 4 + 1
+  X = X + dir_x
+  Y = Y + dir_y
+  addr = (Y - 1) * 4 + X - 1
   Call Clear_Block(m)
   Block(m).address = addr
   Block(m).style = style
   If Block(m).style = 0 Then
-    Block_index(x, y) = m
-    Block_index(x, y + 1) = m
-    Block_index(x + 1, y) = m
-    Block_index(x + 1, y + 1) = m
+    Block_index(X, Y) = m
+    Block_index(X, Y + 1) = m
+    Block_index(X + 1, Y) = m
+    Block_index(X + 1, Y + 1) = m
   End If
   If Block(m).style = 1 Then
-    Block_index(x, y) = m
-    Block_index(x + 1, y) = m
+    Block_index(X, Y) = m
+    Block_index(X + 1, Y) = m
   End If
   If Block(m).style = 2 Then
-    Block_index(x, y) = m
-    Block_index(x, y + 1) = m
+    Block_index(X, Y) = m
+    Block_index(X, Y + 1) = m
   End If
   If Block(m).style = 3 Then
-    Block_index(x, y) = m
+    Block_index(X, Y) = m
   End If
-  For x = 1 To 4
-    For y = 1 To 5
-      If Block_index(x, y) <> 10 Then Exist(x, y) = True
-    Next y
-  Next x
+  For X = 1 To 4
+    For Y = 1 To 5
+      If Block_index(X, Y) <> 10 Then Exist(X, Y) = True
+    Next Y
+  Next X
 End Sub
 Private Sub Check_Move(m As Integer)
-  Dim addr As Integer, x As Integer, y As Integer
+  Dim addr As Integer, X As Integer, Y As Integer
   Dim move_once As Boolean
   move_once = False
   dir_x1 = 0: dir_x2 = 0: dir_y1 = 0: dir_y2 = 0
   move_max_step = 0
   addr = Block(m).address
-  y = Int(addr / 4) + 1
-  x = addr - (y - 1) * 4 + 1
-  block_addr(0).x = x: block_addr(0).y = y
-  block_addr(1).x = x: block_addr(1).y = y
-  block_addr(2).x = x: block_addr(2).y = y
+  Y = Int(addr / 4) + 1
+  X = addr - (Y - 1) * 4 + 1
+  block_addr(0).X = X: block_addr(0).Y = Y
+  block_addr(1).X = X: block_addr(1).Y = Y
+  block_addr(2).X = X: block_addr(2).Y = Y
   If Block(m).style = 0 Then
-    If y > 1 Then
-      If Exist(x, y - 1) = False And Exist(x + 1, y - 1) = False Then move_max_step = 1: dir_y1 = -1
+    If Y > 1 Then
+      If Exist(X, Y - 1) = False And Exist(X + 1, Y - 1) = False Then move_max_step = 1: dir_y1 = -1
     End If
-    If y < 4 Then
-      If Exist(x, y + 2) = False And Exist(x + 1, y + 2) = False Then move_max_step = 1: dir_y1 = 1
+    If Y < 4 Then
+      If Exist(X, Y + 2) = False And Exist(X + 1, Y + 2) = False Then move_max_step = 1: dir_y1 = 1
     End If
-    If x > 1 Then
-      If Exist(x - 1, y) = False And Exist(x - 1, y + 1) = False Then move_max_step = 1: dir_x1 = -1
+    If X > 1 Then
+      If Exist(X - 1, Y) = False And Exist(X - 1, Y + 1) = False Then move_max_step = 1: dir_x1 = -1
     End If
-    If x < 3 Then
-      If Exist(x + 2, y) = False And Exist(x + 2, y + 1) = False Then move_max_step = 1: dir_x1 = 1
+    If X < 3 Then
+      If Exist(X + 2, Y) = False And Exist(X + 2, Y + 1) = False Then move_max_step = 1: dir_x1 = 1
     End If
   ElseIf Block(m).style = 1 Then
-    If y > 1 Then
-      If Exist(x, y - 1) = False And Exist(x + 1, y - 1) = False Then move_max_step = 1: dir_y1 = -1
+    If Y > 1 Then
+      If Exist(X, Y - 1) = False And Exist(X + 1, Y - 1) = False Then move_max_step = 1: dir_y1 = -1
     End If
-    If y < 5 Then
-      If Exist(x, y + 1) = False And Exist(x + 1, y + 1) = False Then move_max_step = 1: dir_y1 = 1
+    If Y < 5 Then
+      If Exist(X, Y + 1) = False And Exist(X + 1, Y + 1) = False Then move_max_step = 1: dir_y1 = 1
     End If
-    If x > 1 Then
-      If Exist(x - 1, y) = False Then
+    If X > 1 Then
+      If Exist(X - 1, Y) = False Then
         move_max_step = 1
         If move_once = False Then dir_x1 = -1 Else dir_x2 = -1
         move_once = True
-        If x > 2 Then
-          If Exist(x - 2, y) = False Then move_max_step = 2: dir_x2 = -2
+        If X > 2 Then
+          If Exist(X - 2, Y) = False Then move_max_step = 2: dir_x2 = -2
         End If
       End If
     End If
-    If x < 3 Then
-      If Exist(x + 2, y) = False Then
+    If X < 3 Then
+      If Exist(X + 2, Y) = False Then
         move_max_step = 1
         If move_once = False Then dir_x1 = 1 Else dir_x2 = 1
         move_once = True
-        If x < 2 Then
-          If Exist(x + 3, y) = False Then move_max_step = 2: dir_x2 = 2
+        If X < 2 Then
+          If Exist(X + 3, Y) = False Then move_max_step = 2: dir_x2 = 2
         End If
       End If
     End If
   ElseIf Block(m).style = 2 Then
-    If y > 1 Then
-      If Exist(x, y - 1) = False Then
+    If Y > 1 Then
+      If Exist(X, Y - 1) = False Then
         move_max_step = 1
         If move_once = False Then dir_y1 = -1 Else dir_y2 = -1
         move_once = True
-        If y > 2 Then
-          If Exist(x, y - 2) = False Then move_max_step = 2: dir_y2 = -2
+        If Y > 2 Then
+          If Exist(X, Y - 2) = False Then move_max_step = 2: dir_y2 = -2
         End If
       End If
     End If
-    If y < 4 Then
-      If Exist(x, y + 2) = False Then
+    If Y < 4 Then
+      If Exist(X, Y + 2) = False Then
         move_max_step = 1
         If move_once = False Then dir_y1 = 1 Else dir_y2 = 1
         move_once = True
-        If y < 3 Then
-          If Exist(x, y + 3) = False Then move_max_step = 2: dir_y2 = 2
+        If Y < 3 Then
+          If Exist(X, Y + 3) = False Then move_max_step = 2: dir_y2 = 2
         End If
       End If
     End If
-    If x > 1 Then
-      If Exist(x - 1, y) = False And Exist(x - 1, y + 1) = False Then move_max_step = 1: dir_x1 = -1
+    If X > 1 Then
+      If Exist(X - 1, Y) = False And Exist(X - 1, Y + 1) = False Then move_max_step = 1: dir_x1 = -1
     End If
-    If x < 4 Then
-      If Exist(x + 1, y) = False And Exist(x + 1, y + 1) = False Then move_max_step = 1: dir_x1 = 1
+    If X < 4 Then
+      If Exist(X + 1, Y) = False And Exist(X + 1, Y + 1) = False Then move_max_step = 1: dir_x1 = 1
     End If
   ElseIf Block(m).style = 3 Then
-    If y > 1 Then
-      If Exist(x, y - 1) = False Then
+    If Y > 1 Then
+      If Exist(X, Y - 1) = False Then
         move_max_step = 1
         If move_once = False Then dir_y1 = -1 Else dir_y2 = -1
         move_once = True
-        If y > 2 Then
-          If Exist(x, y - 2) = False Then move_max_step = 2: dir_y2 = -2
+        If Y > 2 Then
+          If Exist(X, Y - 2) = False Then move_max_step = 2: dir_y2 = -2
         End If
-        If x > 1 Then
-          If Exist(x - 1, y - 1) = False Then move_max_step = 2: dir_x2 = -1: dir_y2 = -1
+        If X > 1 Then
+          If Exist(X - 1, Y - 1) = False Then move_max_step = 2: dir_x2 = -1: dir_y2 = -1
         End If
-        If x < 4 Then
-          If Exist(x + 1, y - 1) = False Then move_max_step = 2: dir_x2 = 1: dir_y2 = -1
+        If X < 4 Then
+          If Exist(X + 1, Y - 1) = False Then move_max_step = 2: dir_x2 = 1: dir_y2 = -1
         End If
       End If
     End If
-    If y < 5 Then
-      If Exist(x, y + 1) = False Then
+    If Y < 5 Then
+      If Exist(X, Y + 1) = False Then
         move_max_step = 1
         If move_once = False Then dir_y1 = 1 Else dir_y2 = 1
         move_once = True
-        If y < 4 Then
-          If Exist(x, y + 2) = False Then move_max_step = 2: dir_y2 = 2
+        If Y < 4 Then
+          If Exist(X, Y + 2) = False Then move_max_step = 2: dir_y2 = 2
         End If
-        If x > 1 Then
-          If Exist(x - 1, y + 1) = False Then move_max_step = 2: dir_x2 = -1: dir_y2 = 1
+        If X > 1 Then
+          If Exist(X - 1, Y + 1) = False Then move_max_step = 2: dir_x2 = -1: dir_y2 = 1
         End If
-        If x < 4 Then
-          If Exist(x + 1, y + 1) = False Then move_max_step = 2: dir_x2 = 1: dir_y2 = 1
+        If X < 4 Then
+          If Exist(X + 1, Y + 1) = False Then move_max_step = 2: dir_x2 = 1: dir_y2 = 1
         End If
       End If
     End If
-    If x > 1 Then
-      If Exist(x - 1, y) = False Then
+    If X > 1 Then
+      If Exist(X - 1, Y) = False Then
         move_max_step = 1
         If move_once = False Then dir_x1 = -1 Else dir_x2 = -1
         move_once = True
-        If x > 2 Then
-          If Exist(x - 2, y) = False Then move_max_step = 2: dir_x2 = -2
+        If X > 2 Then
+          If Exist(X - 2, Y) = False Then move_max_step = 2: dir_x2 = -2
         End If
-        If y > 1 Then
-          If Exist(x - 1, y - 1) = False Then move_max_step = 2: dir_x2 = -1: dir_y2 = -1
+        If Y > 1 Then
+          If Exist(X - 1, Y - 1) = False Then move_max_step = 2: dir_x2 = -1: dir_y2 = -1
         End If
-        If y < 5 Then
-          If Exist(x - 1, y + 1) = False Then move_max_step = 2: dir_x2 = -1: dir_y2 = 1
+        If Y < 5 Then
+          If Exist(X - 1, Y + 1) = False Then move_max_step = 2: dir_x2 = -1: dir_y2 = 1
         End If
       End If
     End If
-    If x < 4 Then
-      If Exist(x + 1, y) = False Then
+    If X < 4 Then
+      If Exist(X + 1, Y) = False Then
         move_max_step = 1
         If move_once = False Then dir_x1 = 1 Else dir_x2 = 1
         move_once = True
-        If x < 3 Then
-          If Exist(x + 2, y) = False Then move_max_step = 2: dir_x2 = 2
+        If X < 3 Then
+          If Exist(X + 2, Y) = False Then move_max_step = 2: dir_x2 = 2
         End If
-        If y > 1 Then
-          If Exist(x + 1, y - 1) = False Then move_max_step = 2: dir_x2 = 1: dir_y2 = -1
+        If Y > 1 Then
+          If Exist(X + 1, Y - 1) = False Then move_max_step = 2: dir_x2 = 1: dir_y2 = -1
         End If
-        If y < 5 Then
-          If Exist(x + 1, y + 1) = False Then move_max_step = 2: dir_x2 = 1: dir_y2 = 1
+        If Y < 5 Then
+          If Exist(X + 1, Y + 1) = False Then move_max_step = 2: dir_x2 = 1: dir_y2 = 1
         End If
       End If
     End If
   End If
-  block_addr(1).x = block_addr(0).x + dir_x1
-  block_addr(1).y = block_addr(0).y + dir_y1
-  block_addr(2).x = block_addr(0).x + dir_x2
-  block_addr(2).y = block_addr(0).y + dir_y2
+  block_addr(1).X = block_addr(0).X + dir_x1
+  block_addr(1).Y = block_addr(0).Y + dir_y1
+  block_addr(2).X = block_addr(0).X + dir_x2
+  block_addr(2).Y = block_addr(0).Y + dir_y2
 End Sub
-Private Function Get_block_x(x As Long) As Integer
+Private Function Get_block_x(X As Long) As Integer
   Dim i As Integer
   For i = 1 To 4
-    If x > x_split(i - 1) And x < x_split(i) Then
+    If X > x_split(i - 1) And X < x_split(i) Then
       Get_block_x = i
       Exit For
     End If
   Next i
 End Function
-Private Function Get_block_y(y As Long) As Integer
+Private Function Get_block_y(Y As Long) As Integer
   Dim i As Integer
   For i = 1 To 5
-    If y > y_split(i - 1) And y < y_split(i) Then
+    If Y > y_split(i - 1) And Y < y_split(i) Then
       Get_block_y = i
       Exit For
     End If
   Next i
 End Function
 Private Sub Output_Graph()
-  Dim m, x, y As Integer
+  Dim m, X, Y As Integer
   Dim width As Integer, height As Integer
   Print_Block start_x, start_y, square_width * 4 + gap * 5, square_width * 5 + gap * 6, case_line_width, case_color, case_line_color
   For m = 0 To 9
     If Block(m).address <> 25 Then
-      x = (Block(m).address Mod 4) * (square_width + gap) + gap + start_x
-      y = Int(Block(m).address / 4) * (square_width + gap) + gap + start_y
+      X = (Block(m).address Mod 4) * (square_width + gap) + gap + start_x
+      Y = Int(Block(m).address / 4) * (square_width + gap) + gap + start_y
       If Block(m).style = 0 Or Block(m).style = 1 Then
         width = square_width * 2 + gap
       Else
@@ -571,7 +588,7 @@ Private Sub Output_Graph()
       Else
         height = square_width
       End If
-      Print_Block x, y, width, height, block_line_width, block_color, block_line_color
+      Print_Block X, Y, width, height, block_line_width, block_color, block_line_color
     End If
   Next m
 End Sub
@@ -597,35 +614,35 @@ Private Sub Case_init()
   Next i
 End Sub
 Private Sub Clear_Block(m As Integer)
-  Dim x As Integer, y As Integer, addr As Integer
+  Dim X As Integer, Y As Integer, addr As Integer
   addr = Block(m).address
-  y = Int(addr / 4) + 1
-  x = addr - (y - 1) * 4 + 1
+  Y = Int(addr / 4) + 1
+  X = addr - (Y - 1) * 4 + 1
   If Block(m).style = 0 Then
-    Exist(x, y) = False
-    Exist(x, y + 1) = False
-    Exist(x + 1, y) = False
-    Exist(x + 1, y + 1) = False
-    Block_index(x, y) = 10
-    Block_index(x, y + 1) = 10
-    Block_index(x + 1, y) = 10
-    Block_index(x + 1, y + 1) = 10
+    Exist(X, Y) = False
+    Exist(X, Y + 1) = False
+    Exist(X + 1, Y) = False
+    Exist(X + 1, Y + 1) = False
+    Block_index(X, Y) = 10
+    Block_index(X, Y + 1) = 10
+    Block_index(X + 1, Y) = 10
+    Block_index(X + 1, Y + 1) = 10
   End If
   If Block(m).style = 1 Then
-    Exist(x, y) = False
-    Exist(x + 1, y) = False
-    Block_index(x, y) = 10
-    Block_index(x + 1, y) = 10
+    Exist(X, Y) = False
+    Exist(X + 1, Y) = False
+    Block_index(X, Y) = 10
+    Block_index(X + 1, Y) = 10
   End If
   If Block(m).style = 2 Then
-    Exist(x, y) = False
-    Exist(x, y + 1) = False
-    Block_index(x, y) = 10
-    Block_index(x, y + 1) = 10
+    Exist(X, Y) = False
+    Exist(X, Y + 1) = False
+    Block_index(X, Y) = 10
+    Block_index(X, Y + 1) = 10
   End If
   If Block(m).style = 3 Then
-    Exist(x, y) = False
-    Block_index(x, y) = 10
+    Exist(X, Y) = False
+    Block_index(X, Y) = 10
   End If
   Block(m).address = 25
   Block(m).style = 4
@@ -706,41 +723,41 @@ Private Function Get_Code() As String
   Get_Code = code
 End Function
 Private Sub Analyse(code As String)
-  Dim m As Integer, addr As Integer, x As Integer, y As Integer
+  Dim m As Integer, addr As Integer, X As Integer, Y As Integer
   Call Analyse_Code(code)
-  For x = 1 To 4
-    For y = 1 To 5
-      Block_index(x, y) = 10
-      Exist(x, y) = False
-    Next y
-  Next x
+  For X = 1 To 4
+    For Y = 1 To 5
+      Block_index(X, Y) = 10
+      Exist(X, Y) = False
+    Next Y
+  Next X
   For m = 0 To 9
     addr = Block(m).address
-    y = Int(addr / 4) + 1
-    x = addr - (y - 1) * 4 + 1
+    Y = Int(addr / 4) + 1
+    X = addr - (Y - 1) * 4 + 1
     If Block(m).style = 0 Then
-      Block_index(x, y) = 0
-      Block_index(x, y + 1) = 0
-      Block_index(x + 1, y) = 0
-      Block_index(x + 1, y + 1) = 0
+      Block_index(X, Y) = 0
+      Block_index(X, Y + 1) = 0
+      Block_index(X + 1, Y) = 0
+      Block_index(X + 1, Y + 1) = 0
     End If
     If Block(m).style = 1 Then
-      Block_index(x, y) = m
-      Block_index(x + 1, y) = m
+      Block_index(X, Y) = m
+      Block_index(X + 1, Y) = m
     End If
     If Block(m).style = 2 Then
-      Block_index(x, y) = m
-      Block_index(x, y + 1) = m
+      Block_index(X, Y) = m
+      Block_index(X, Y + 1) = m
     End If
     If Block(m).style = 3 Then
-      Block_index(x, y) = m
+      Block_index(X, Y) = m
     End If
   Next m
-  For x = 1 To 4
-    For y = 1 To 5
-      If Block_index(x, y) <> 10 Then Exist(x, y) = True
-    Next y
-  Next x
+  For X = 1 To 4
+    For Y = 1 To 5
+      If Block_index(X, Y) <> 10 Then Exist(X, Y) = True
+    Next Y
+  Next X
 End Sub
 Private Function Check() As Boolean
   Dim temp(0 To 19) As Boolean
@@ -905,9 +922,9 @@ Private Sub Timer_Debug_Timer()
   Next j
   debug_dat = debug_dat & "dir_x1=" & dir_x1 & " dir_y1=" & dir_y1 & vbCrLf
   debug_dat = debug_dat & "dir_x2=" & dir_x2 & " dir_y2=" & dir_y2 & vbCrLf
-  debug_dat = debug_dat & "block_addr(0)=(" & block_addr(0).x & "," & block_addr(0).y & ")" & vbCrLf
-  debug_dat = debug_dat & "block_addr(1)=(" & block_addr(1).x & "," & block_addr(1).y & ")" & vbCrLf
-  debug_dat = debug_dat & "block_addr(2)=(" & block_addr(2).x & "," & block_addr(2).y & ")" & vbCrLf
+  debug_dat = debug_dat & "block_addr(0)=(" & block_addr(0).X & "," & block_addr(0).Y & ")" & vbCrLf
+  debug_dat = debug_dat & "block_addr(1)=(" & block_addr(1).X & "," & block_addr(1).Y & ")" & vbCrLf
+  debug_dat = debug_dat & "block_addr(2)=(" & block_addr(2).X & "," & block_addr(2).Y & ")" & vbCrLf
   debug_dat = debug_dat & "move_max_step=" & move_max_step & vbCrLf
   debug_dat = debug_dat & "last_move=" & last_move & vbCrLf
   debug_dat = debug_dat & "move_times=" & move_times & vbCrLf

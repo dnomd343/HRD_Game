@@ -102,6 +102,7 @@ Private Sub Form_Load()
     SetWindowPos Me.hwnd, -2, 0, 0, 0, 0, 1 Or 2
   End If
   Call Get_Data
+  Print_Block start_x, start_y, square_width * 4 + gap * 5, square_width * 5 + gap * 6, case_line_width, case_color, case_line_color
   If Not List_Favourite.ListCount = 0 Then List_Favourite.ListIndex = 0
 End Sub
 Private Sub Command_Confirm_Click()
@@ -115,6 +116,7 @@ Private Sub Command_Confirm_Click()
 End Sub
 Private Sub Command_Add_Click()
   change_mode = False
+  favourite_add_save = False
   favourite_add_init_name = ""
   favourite_add_init_code = ""
   Form_Favourite_Add.Show 1
@@ -123,6 +125,7 @@ Private Sub Command_Modify_Click()
   Dim temp As String
   If List_Favourite.ListCount = 0 Then Exit Sub
   change_mode = True
+  favourite_add_save = False
   temp = List_Favourite.List(List_Favourite.ListIndex)
   favourite_add_init_name = Left(temp, Len(temp) - 9)
   favourite_add_init_code = Left(Right(temp, 8), 7)
@@ -137,6 +140,10 @@ Private Sub Command_Delete_Click()
     List_Favourite.ListIndex = List_Favourite.ListCount - 1
   Else
     List_Favourite.ListIndex = temp
+  End If
+  If List_Favourite.ListCount = 0 Then
+    Text_Code = ""
+    Print_Block start_x, start_y, square_width * 4 + gap * 5, square_width * 5 + gap * 6, case_line_width, case_color, case_line_color
   End If
   Call Save_Data
 End Sub
@@ -180,13 +187,13 @@ Private Sub Save_Data()
   Call Save_Favourite_Cases
 End Sub
 Private Sub Output_Graph()
-  Dim m, x, y As Integer
+  Dim m, X, Y As Integer
   Dim width As Integer, height As Integer
   Print_Block start_x, start_y, square_width * 4 + gap * 5, square_width * 5 + gap * 6, case_line_width, case_color, case_line_color
   For m = 0 To 9
     If Block(m).address <> 25 Then
-      x = (Block(m).address Mod 4) * (square_width + gap) + gap + start_x
-      y = Int(Block(m).address / 4) * (square_width + gap) + gap + start_y
+      X = (Block(m).address Mod 4) * (square_width + gap) + gap + start_x
+      Y = Int(Block(m).address / 4) * (square_width + gap) + gap + start_y
       If Block(m).style = 0 Or Block(m).style = 1 Then
         width = square_width * 2 + gap
       Else
@@ -197,7 +204,7 @@ Private Sub Output_Graph()
       Else
         height = square_width
       End If
-      Print_Block x, y, width, height, block_line_width, block_color, block_line_color
+      Print_Block X, Y, width, height, block_line_width, block_color, block_line_color
     End If
   Next m
 End Sub

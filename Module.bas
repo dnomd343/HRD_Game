@@ -3,7 +3,7 @@ Option Explicit
 Public Declare Function RegEnumKeyEx Lib "advapi32.dll" Alias "RegEnumKeyExA" (ByVal hkey As Long, ByVal dwIndex As Long, ByVal lpName As String, lpcbName As Long, ByVal lpReserved As Long, ByVal lpClass As String, lpcbClass As Long, lpftLastWriteTime As FILETIME) As Long
 Public Declare Function RegOpenKey Lib "advapi32.dll" Alias "RegOpenKeyA" (ByVal hkey As Long, ByVal lpSubKey As String, phkResult As Long) As Long
 Public Declare Function RegCloseKey Lib "advapi32.dll" (ByVal hkey As Long) As Long
-Public Declare Function SetWindowPos Lib "user32" (ByVal hwnd As Long, ByVal hWndInsertAfter As Long, ByVal x As Long, ByVal y As Long, ByVal cx As Long, ByVal cy As Long, ByVal wFlags As Long) As Long
+Public Declare Function SetWindowPos Lib "user32" (ByVal hwnd As Long, ByVal hWndInsertAfter As Long, ByVal X As Long, ByVal Y As Long, ByVal cx As Long, ByVal cy As Long, ByVal wFlags As Long) As Long
 Public Declare Function SHDeleteKey Lib "shlwapi.dll" Alias "SHDeleteKeyA" (ByVal hkey As Long, ByVal pszSubKey As String) As Long
 Public Type FILETIME
   dwLowDateTime As Long
@@ -22,25 +22,25 @@ Public block_color, block_line_color, case_color, case_line_color
 Public change_case As Boolean, change_case_title As String, change_case_code As String
 Public Favourite_Cases_name() As String, Favourite_Cases_code() As String
 Public favourite_add_name As String, favourite_add_code As String, favourite_add_confirm As Boolean
-Public favourite_add_init_name As String, favourite_add_init_code As String
+Public favourite_add_init_name As String, favourite_add_init_code As String, favourite_add_save As Boolean
 Public Sub FindKeys(hkey As Long, SubKey As String)
-  Dim phkRet As Long, lRet As Long, Index As Long, lName As Long, lReserved As Long, lClass As Long
+  Dim phkRet As Long, lRet As Long, index As Long, lName As Long, lReserved As Long, lClass As Long
   Dim name As String, Class As String
   Dim LWT As FILETIME
   lReserved = 0
-  Index = 0
+  index = 0
   lRet = RegOpenKey(hkey, SubKey, phkRet)
   If lRet = 0 Then
     Do
       name = String(255, Chr(0)): lName = Len(name)
-      lRet = RegEnumKeyEx(phkRet, Index, name, lName, lReserved, Class, lClass, LWT)
+      lRet = RegEnumKeyEx(phkRet, index, name, lName, lReserved, Class, lClass, LWT)
       If lRet = 0 Then
         ReDim Preserve Favourite_Cases_name(UBound(Favourite_Cases_name) + 1)
         Favourite_Cases_name(UBound(Favourite_Cases_name)) = name
       Else
         Exit Do
       End If
-      Index = Index + 1
+      index = index + 1
     Loop While lRet = 0
   End If
   Call RegCloseKey(phkRet)
