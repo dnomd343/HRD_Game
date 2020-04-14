@@ -1,6 +1,7 @@
 Type=Exe
 Form=Form_Game.frm
 Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#..\..\..\..\..\..\Windows\SysWOW64\stdole2.tlb#OLE Automation
+Module=Module; Module.bas
 IconForm="Form_Game"
 Startup="Form_Game"
 HelpFile=""
@@ -10,6 +11,9 @@ Command32=""
 Name="HRD_Game"
 HelpContextID="0"
 CompatibleMode="0"
+MajorVer=0
+MinorVer=1
+RevisionVer=0
 AutoIncrementVer=0
 ServerSupportFiles=0
 VersionCompanyName="Dnomd343"
