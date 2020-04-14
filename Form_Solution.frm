@@ -13,6 +13,27 @@ Begin VB.Form Form_Solution
    ScaleHeight     =   5145
    ScaleWidth      =   5295
    StartUpPosition =   2  '屏幕中心
+   Visible         =   0   'False
+   Begin VB.PictureBox Picture_Print 
+      AutoRedraw      =   -1  'True
+      BorderStyle     =   0  'None
+      BeginProperty Font 
+         Name            =   "微软雅黑"
+         Size            =   9
+         Charset         =   134
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   15
+      Left            =   0
+      ScaleHeight     =   15
+      ScaleWidth      =   15
+      TabIndex        =   8
+      Top             =   0
+      Width           =   15
+   End
    Begin VB.CommandButton Command_Output 
       Caption         =   "导出数据"
       Height          =   470
@@ -166,7 +187,33 @@ Private Sub Timer_Get_Data_Timer()
   End If
 End Sub
 Private Sub Command_Output_Click()
-  MsgBox "还没做好呢QAQ", , "> _ <"
+  On Error Resume Next
+  Dim i As Integer, str_len As Integer
+  MkDir start_code
+  Picture_Print.BackColor = case_color
+  Picture_Print.width = start_x * 2 + gap * 5 + square_width * 4
+  Picture_Print.height = start_y * 2 + gap * 6 + square_width * 5
+  If output_with_code = True Then Picture_Print.height = start_y * 2 + gap * 6 + square_width * 5 + 600
+  str_len = Len(Trim(List_Solution.ListCount - 1))
+  For i = 0 To List_Solution.ListCount - 1
+    Picture_Print.Cls
+    Call Analyse_Code(List_Solution.List(i))
+    Call Picture_Output_Graph
+    Picture_Print.FontSize = 30
+    Picture_Print.CurrentX = 600
+    Picture_Print.CurrentY = 4400
+    Picture_Print.Print List_Solution.List(i)
+    SavePicture Picture_Print.Image, App.Path & "\" & start_code & "\" & String(str_len - Len(Trim(i)), "0") & i & "." & List_Solution.List(i) & ".bmp"
+  Next i
+  Picture_Print.Visible = False
+  Open App.Path & "\" & start_code & "\$Code.txt" For Output As #1
+    For i = 0 To List_Solution.ListCount - 1
+      Print #1, List_Solution.List(i)
+    Next i
+    If Label_Index.Caption = "无解" Then Print #1, "无解" Else Print #1, "共" & Trim(List_Solution.ListCount - 1) & "步"
+  Close #1
+  MsgBox "布局图片导出完成", , "> _ <"
+  Shell "explorer.exe " & App.Path & "\" & start_code, vbNormalFocus
 End Sub
 Private Sub Get_Data(file_name As String)
   Dim temp As String, i As Integer, num As Integer
@@ -186,6 +233,36 @@ Private Sub Get_Data(file_name As String)
     End If
   Close #1
   List_Solution.ListIndex = 0
+End Sub
+Private Sub Picture_Output_Graph()
+  Dim m, X, Y As Integer
+  Dim width As Integer, height As Integer
+  Picture_Print_Block start_x, start_y, square_width * 4 + gap * 5, square_width * 5 + gap * 6, case_line_width, case_color, case_line_color
+  For m = 0 To 9
+    If Block(m).address <> 25 Then
+      X = (Block(m).address Mod 4) * (square_width + gap) + gap + start_x
+      Y = Int(Block(m).address / 4) * (square_width + gap) + gap + start_y
+      If Block(m).style = 0 Or Block(m).style = 1 Then
+        width = square_width * 2 + gap
+      Else
+        width = square_width
+      End If
+      If Block(m).style = 0 Or Block(m).style = 2 Then
+        height = square_width * 2 + gap
+      Else
+        height = square_width
+      End If
+      Picture_Print_Block X, Y, width, height, block_line_width, block_color, block_line_color
+    End If
+  Next m
+End Sub
+Private Sub Picture_Print_Block(print_start_x, print_start_y, print_width, print_height, print_line_width, print_color, print_line_color)
+  If print_width < 0 Or print_height < 0 Then Exit Sub
+  Picture_Print.FillStyle = 0
+  Picture_Print.DrawWidth = print_line_width
+  Picture_Print.FillColor = print_color
+  Picture_Print.Line (print_start_x, print_start_y)-(print_start_x + print_width, print_start_y + print_height), print_color, B
+  Picture_Print.Line (print_start_x, print_start_y)-(print_start_x + print_width, print_start_y + print_height), print_line_color, B
 End Sub
 Private Sub Output_Graph()
   Dim m, X, Y As Integer

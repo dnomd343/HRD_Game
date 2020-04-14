@@ -25,7 +25,7 @@ Begin VB.Form Form_Start
       Width           =   180
    End
    Begin VB.CommandButton Command_Favourite 
-      Caption         =   "收藏的布局"
+      Caption         =   "收藏夹"
       Height          =   1095
       Left            =   1800
       TabIndex        =   4
@@ -33,7 +33,7 @@ Begin VB.Form Form_Start
       Width           =   1815
    End
    Begin VB.CommandButton Command_Rand_Case 
-      Caption         =   "随机生成布局"
+      Caption         =   "随机生成"
       Height          =   1095
       Left            =   0
       TabIndex        =   3
@@ -41,7 +41,7 @@ Begin VB.Form Form_Start
       Width           =   1815
    End
    Begin VB.CommandButton Command_Select_Case 
-      Caption         =   "选择经典布局"
+      Caption         =   "经典布局"
       Height          =   1095
       Left            =   1800
       TabIndex        =   2
@@ -49,7 +49,7 @@ Begin VB.Form Form_Start
       Width           =   1815
    End
    Begin VB.CommandButton Command_Create_Case 
-      Caption         =   "自定义布局"
+      Caption         =   "自定义"
       Height          =   1095
       Left            =   0
       TabIndex        =   1

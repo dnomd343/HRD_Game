@@ -58,7 +58,7 @@ Attribute VB_Exposed = False
 Option Explicit
 Private Sub Form_Load()
   If debug_mode = True Then
-    Form_Wait.height = 1875
+    Form_Wait.height = 1145
     Text_Debug.Visible = True
   Else
     Form_Wait.height = 465

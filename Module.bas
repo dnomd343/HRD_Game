@@ -26,7 +26,7 @@ Public Const HKEY_DYN_DATA = &H80000006
 Public Const HKEY_LOCAL_MACHINE = &H80000002
 Public Const HKEY_USERS = &H80000003
 
-Public debug_mode As Boolean, on_top As Boolean
+Public debug_mode As Boolean, on_top As Boolean, output_with_code As Boolean
 Public playing As Boolean, solve_compete As Boolean
 Public block_line_width As Integer, case_line_width As Integer
 Public block_color, block_line_color, case_color, case_line_color
@@ -94,7 +94,11 @@ Sub main()
   case_line_color = RGB(0, 158, 240)
   block_color = RGB(225, 245, 255)
   case_color = RGB(248, 254, 255)
-  'Form_Game.Show
+  debug_mode = False
+  on_top = True
+  output_with_code = False
+  playing = False
+  solve_compete = False
   Form_Start.Show
 End Sub
 

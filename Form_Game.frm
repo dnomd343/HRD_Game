@@ -2,7 +2,7 @@ VERSION 5.00
 Begin VB.Form Form_Game 
    AutoRedraw      =   -1  'True
    BorderStyle     =   1  'Fixed Single
-   Caption         =   "HRD Game v2.0 by Dnomd343"
+   Caption         =   "HRD Game v2.1 by Dnomd343"
    ClientHeight    =   7305
    ClientLeft      =   45
    ClientTop       =   690
@@ -214,6 +214,9 @@ Begin VB.Form Form_Game
          Caption         =   "保持窗口最前"
          Checked         =   -1  'True
       End
+      Begin VB.Menu Menu_Output_With_Code 
+         Caption         =   "输出图片带编码"
+      End
       Begin VB.Menu Menu_Debug_Mode 
          Caption         =   "Debug模式"
       End
@@ -302,16 +305,16 @@ Private Sub Menu_On_Top_Click()
     SetWindowPos Me.hwnd, -2, 0, 0, 0, 0, 1 Or 2
   End If
 End Sub
+Private Sub Menu_Output_With_Code_Click()
+  Menu_Output_With_Code.Checked = Not Menu_Output_With_Code.Checked
+  output_with_code = Menu_Output_With_Code.Checked
+End Sub
 Private Sub Menu_Debug_Mode_Click()
   Menu_Debug_Mode.Checked = Not Menu_Debug_Mode.Checked
   If Menu_Debug_Mode.Checked = True Then debug_mode = True Else debug_mode = False
 End Sub
 Private Sub Form_Load()
   Me.Icon = Me.MouseIcon
-  debug_mode = False
-  on_top = True
-  playing = False
-  solve_compete = False
   start_x = 180
   start_y = 300
   gap = 105
