@@ -2,7 +2,7 @@ VERSION 5.00
 Begin VB.Form Form_Game 
    AutoRedraw      =   -1  'True
    BorderStyle     =   1  'Fixed Single
-   Caption         =   "HRD Game v1.0 by Dnomd343"
+   Caption         =   "HRD Game v1.1 by Dnomd343"
    ClientHeight    =   7305
    ClientLeft      =   45
    ClientTop       =   690
@@ -136,7 +136,8 @@ Private Sub Menu_Debug_Mode_Click()
 End Sub
 Private Sub Menu_On_Top_Click()
   Menu_On_Top.Checked = Not Menu_On_Top.Checked
-  If Menu_On_Top.Checked = True Then
+  on_top = Menu_On_Top.Checked
+  If on_top = True Then
     SetWindowPos Me.hwnd, -1, 0, 0, 0, 0, 1 Or 2
   Else
     SetWindowPos Me.hwnd, -2, 0, 0, 0, 0, 1 Or 2
@@ -243,9 +244,7 @@ Private Sub Form_Click()
   End If
 End Sub
 Private Sub Command_Create_Case_Click()
-  change_case_title = InputBox("请输入布局名称", "提示", "横刀立马")
-  change_case_code = InputBox("请输入布局编码(7bits)", "提示", "1A9BF0C")
-  change_case = True
+  Form_Creator.Show 1
 End Sub
 
 Private Sub Command_Select_Case_Click()

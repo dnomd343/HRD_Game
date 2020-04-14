@@ -102,6 +102,11 @@ Private Sub Form_Load()
   gap = 75
   Call Get_Cases_title
   Combo_Cases.ListIndex = 0
+  If on_top = True Then
+    SetWindowPos Me.hwnd, -1, 0, 0, 0, 0, 1 Or 2
+  Else
+    SetWindowPos Me.hwnd, -2, 0, 0, 0, 0, 1 Or 2
+  End If
 End Sub
 Private Sub Command_Confirm_Click()
   change_case = True
