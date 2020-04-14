@@ -2,7 +2,7 @@ VERSION 5.00
 Begin VB.Form Form_Game 
    AutoRedraw      =   -1  'True
    BorderStyle     =   1  'Fixed Single
-   Caption         =   "HRD Game v1.6 by Dnomd343"
+   Caption         =   "HRD Game v1.7 by Dnomd343"
    ClientHeight    =   7305
    ClientLeft      =   45
    ClientTop       =   690
@@ -14,12 +14,20 @@ Begin VB.Form Form_Game
    ScaleHeight     =   7305
    ScaleWidth      =   7290
    StartUpPosition =   2  '屏幕中心
+   Begin VB.CommandButton Command_Prompt 
+      Caption         =   "提示下一步"
+      Height          =   495
+      Left            =   5760
+      TabIndex        =   14
+      Top             =   4440
+      Width           =   1335
+   End
    Begin VB.CommandButton Command_Solution 
       Caption         =   "最少步解法"
       Height          =   495
       Left            =   5760
       TabIndex        =   13
-      Top             =   5520
+      Top             =   5760
       Width           =   1335
    End
    Begin VB.CommandButton Command_Add_Favourite 
@@ -27,7 +35,7 @@ Begin VB.Form Form_Game
       Height          =   495
       Left            =   5760
       TabIndex        =   12
-      Top             =   3000
+      Top             =   2640
       Width           =   1335
    End
    Begin VB.CommandButton Command_Favourite 
@@ -35,7 +43,7 @@ Begin VB.Form Form_Game
       Height          =   495
       Left            =   5760
       TabIndex        =   11
-      Top             =   2280
+      Top             =   1920
       Width           =   1335
    End
    Begin VB.CommandButton Command_Reduction_Snapshot 
@@ -43,7 +51,7 @@ Begin VB.Form Form_Game
       Height          =   495
       Left            =   5760
       TabIndex        =   10
-      Top             =   4200
+      Top             =   3840
       Width           =   1335
    End
    Begin VB.CommandButton Command_Create_Snapshot 
@@ -51,7 +59,7 @@ Begin VB.Form Form_Game
       Height          =   495
       Left            =   5760
       TabIndex        =   9
-      Top             =   3600
+      Top             =   3240
       Width           =   1335
    End
    Begin VB.CommandButton Command_Rand_Case 
@@ -59,7 +67,7 @@ Begin VB.Form Form_Game
       Height          =   495
       Left            =   5760
       TabIndex        =   8
-      Top             =   1680
+      Top             =   1320
       Width           =   1335
    End
    Begin VB.CommandButton Command_Select_Case 
@@ -67,7 +75,7 @@ Begin VB.Form Form_Game
       Height          =   495
       Left            =   5760
       TabIndex        =   7
-      Top             =   1080
+      Top             =   720
       Width           =   1335
    End
    Begin VB.CommandButton Command_Create_Case 
@@ -75,7 +83,7 @@ Begin VB.Form Form_Game
       Height          =   495
       Left            =   5760
       TabIndex        =   6
-      Top             =   480
+      Top             =   120
       Width           =   1335
    End
    Begin VB.Timer Timer_Layout 
@@ -88,7 +96,7 @@ Begin VB.Form Form_Game
       Height          =   495
       Left            =   5760
       TabIndex        =   1
-      Top             =   4800
+      Top             =   5040
       Width           =   1335
    End
    Begin VB.Timer Timer_Get_Time 
@@ -179,6 +187,7 @@ Dim mouse_x As Long, mouse_y As Long, mouse_button As Integer
 Dim last_move As Integer, move_times As Integer
 Dim total_steps As Long, total_time As Long
 Dim snapshot_code As String, snapshot_step As Long
+Dim prompt_wait_data As Boolean
 Private Sub Menu_Debug_Mode_Click()
   Menu_Debug_Mode.Checked = Not Menu_Debug_Mode.Checked
   If Menu_Debug_Mode.Checked = True Then debug_mode = True Else debug_mode = False
@@ -334,6 +343,16 @@ Private Sub Command_Reduction_Snapshot_Click()
   Call Output_Graph
   Label_Step = "步数: " & total_steps
   Label_Code = snapshot_code
+End Sub
+Private Sub Command_Prompt_Click()
+  If solve_compete = True Then MsgBox "你已经解好啦", , "> _ <": Exit Sub
+  wait_file_name = Label_Code & ".txt"
+  If Dir(Label_Code & ".txt") <> "" Then Kill Label_Code & ".txt"
+  Shell "Engine.exe -q " & Label_Code
+  wait_cancel = False
+  waiting = True
+  prompt_wait_data = True
+  Form_Wait.Show 1
 End Sub
 Private Sub Command_Reset_Click()
   total_steps = 0
@@ -946,7 +965,7 @@ Private Sub Timer_Debug_Timer()
   Text_Debug = debug_dat
 End Sub
 Private Sub Timer_Layout_Timer()
-  Dim width As Integer
+  Dim width As Integer, temp As String
   width = gap * 5 + square_width * 4
   Label_Title.Top = 45
   Label_Code.Top = 7000
@@ -977,5 +996,33 @@ Private Sub Timer_Layout_Timer()
     Label_Time = "用时: 0:00:00"
     Call Analyse(start_code)
     Call Output_Graph
+  End If
+  If prompt_wait_data = True And waiting = False Then
+    prompt_wait_data = False
+    Open Label_Code.Caption & ".txt" For Input As #1
+      Line Input #1, temp
+      If temp = "No Solution" Then
+        MsgBox "无解", , "> _ <"
+      Else
+        Line Input #1, temp
+        Line Input #1, temp
+        last_move = 10
+        If total_steps = 0 Then
+          playing = True
+          Timer_Get_Time.Enabled = True
+        End If
+        total_steps = total_steps + 1
+        Label_Step = "步数: " & total_steps
+        Label_Code = temp
+        Call Analyse(temp)
+        Call Output_Graph
+        If Block(0).address = 13 Then
+          Timer_Get_Time = False
+          playing = False
+          solve_compete = True
+          MsgBox "恭喜你成功完成！" & vbCrLf & "编码: " & start_code & vbCrLf & "步数: " & total_steps & vbCrLf & "用时: " & Right(Label_Time, Len(Label_Time) - 4), , "（>__<）"
+        End If
+      End If
+    Close #1
   End If
 End Sub

@@ -60,12 +60,12 @@ Begin VB.Form Form_Solution
       Width           =   615
    End
    Begin VB.ListBox List_Solution 
-      Height          =   4560
+      Height          =   4740
       ItemData        =   "Form_Solution.frx":0000
       Left            =   3720
       List            =   "Form_Solution.frx":0002
       TabIndex        =   0
-      Top             =   360
+      Top             =   290
       Width           =   1455
    End
    Begin VB.Timer Timer_Get_Data 
@@ -78,7 +78,7 @@ Begin VB.Form Form_Solution
       Height          =   180
       Left            =   0
       TabIndex        =   6
-      Top             =   120
+      Top             =   80
       Width           =   90
    End
 End

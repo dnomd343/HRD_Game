@@ -1,12 +1,12 @@
 VERSION 5.00
 Begin VB.Form Form_Wait 
    BorderStyle     =   0  'None
-   ClientHeight    =   1140
+   ClientHeight    =   465
    ClientLeft      =   0
    ClientTop       =   0
    ClientWidth     =   1920
    LinkTopic       =   "Form1"
-   ScaleHeight     =   1140
+   ScaleHeight     =   465
    ScaleWidth      =   1920
    ShowInTaskbar   =   0   'False
    StartUpPosition =   2  '屏幕中心
@@ -45,6 +45,7 @@ Begin VB.Form Form_Wait
       Height          =   465
       Left            =   0
       TabIndex        =   0
+      ToolTipText     =   "双击可取消哦"
       Top             =   0
       Width           =   1920
    End
