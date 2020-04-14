@@ -2,7 +2,7 @@ VERSION 5.00
 Begin VB.Form Form_Game 
    AutoRedraw      =   -1  'True
    BorderStyle     =   1  'Fixed Single
-   Caption         =   "HRD Game v1.5 by Dnomd343"
+   Caption         =   "HRD Game v1.6 by Dnomd343"
    ClientHeight    =   7305
    ClientLeft      =   45
    ClientTop       =   690
@@ -14,12 +14,20 @@ Begin VB.Form Form_Game
    ScaleHeight     =   7305
    ScaleWidth      =   7290
    StartUpPosition =   2  '屏幕中心
+   Begin VB.CommandButton Command_Solution 
+      Caption         =   "最少步解法"
+      Height          =   495
+      Left            =   5760
+      TabIndex        =   13
+      Top             =   5520
+      Width           =   1335
+   End
    Begin VB.CommandButton Command_Add_Favourite 
       Caption         =   "加入收藏"
       Height          =   495
       Left            =   5760
       TabIndex        =   12
-      Top             =   3480
+      Top             =   3000
       Width           =   1335
    End
    Begin VB.CommandButton Command_Favourite 
@@ -27,7 +35,7 @@ Begin VB.Form Form_Game
       Height          =   495
       Left            =   5760
       TabIndex        =   11
-      Top             =   2760
+      Top             =   2280
       Width           =   1335
    End
    Begin VB.CommandButton Command_Reduction_Snapshot 
@@ -35,7 +43,7 @@ Begin VB.Form Form_Game
       Height          =   495
       Left            =   5760
       TabIndex        =   10
-      Top             =   4680
+      Top             =   4200
       Width           =   1335
    End
    Begin VB.CommandButton Command_Create_Snapshot 
@@ -43,7 +51,7 @@ Begin VB.Form Form_Game
       Height          =   495
       Left            =   5760
       TabIndex        =   9
-      Top             =   4080
+      Top             =   3600
       Width           =   1335
    End
    Begin VB.CommandButton Command_Rand_Case 
@@ -51,7 +59,7 @@ Begin VB.Form Form_Game
       Height          =   495
       Left            =   5760
       TabIndex        =   8
-      Top             =   2160
+      Top             =   1680
       Width           =   1335
    End
    Begin VB.CommandButton Command_Select_Case 
@@ -59,7 +67,7 @@ Begin VB.Form Form_Game
       Height          =   495
       Left            =   5760
       TabIndex        =   7
-      Top             =   1560
+      Top             =   1080
       Width           =   1335
    End
    Begin VB.CommandButton Command_Create_Case 
@@ -67,7 +75,7 @@ Begin VB.Form Form_Game
       Height          =   495
       Left            =   5760
       TabIndex        =   6
-      Top             =   960
+      Top             =   480
       Width           =   1335
    End
    Begin VB.Timer Timer_Layout 
@@ -80,7 +88,7 @@ Begin VB.Form Form_Game
       Height          =   495
       Left            =   5760
       TabIndex        =   1
-      Top             =   5280
+      Top             =   4800
       Width           =   1335
    End
    Begin VB.Timer Timer_Get_Time 
@@ -138,7 +146,8 @@ Begin VB.Form Form_Game
    Begin VB.Menu Menu_Setting 
       Caption         =   "设置"
       Begin VB.Menu Menu_On_Top 
-         Caption         =   "窗口保持最前"
+         Caption         =   "保持窗口最前"
+         Checked         =   -1  'True
       End
       Begin VB.Menu Menu_Debug_Mode 
          Caption         =   "Debug模式"
@@ -169,10 +178,7 @@ Dim block_addr(0 To 2) As Block_Address, move_max_step As Integer
 Dim mouse_x As Long, mouse_y As Long, mouse_button As Integer
 Dim last_move As Integer, move_times As Integer
 Dim total_steps As Long, total_time As Long
-Dim Start_Code As String
 Dim snapshot_code As String, snapshot_step As Long
-
-
 Private Sub Menu_Debug_Mode_Click()
   Menu_Debug_Mode.Checked = Not Menu_Debug_Mode.Checked
   If Menu_Debug_Mode.Checked = True Then debug_mode = True Else debug_mode = False
@@ -187,6 +193,8 @@ Private Sub Menu_On_Top_Click()
   End If
 End Sub
 Private Sub Form_Load()
+  debug_mode = False
+  on_top = True
   Call init
 End Sub
 Private Sub Form_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
@@ -283,7 +291,7 @@ Private Sub Form_Click()
     Timer_Get_Time = False
     playing = False
     solve_compete = True
-    MsgBox "恭喜你成功完成！" & vbCrLf & "编码: " & Start_Code & vbCrLf & "步数: " & total_steps & vbCrLf & "用时: " & Right(Label_Time, Len(Label_Time) - 4), , "（>__<）"
+    MsgBox "恭喜你成功完成！" & vbCrLf & "编码: " & start_code & vbCrLf & "步数: " & total_steps & vbCrLf & "用时: " & Right(Label_Time, Len(Label_Time) - 4), , "（>__<）"
   End If
 End Sub
 Private Sub Command_Create_Case_Click()
@@ -298,6 +306,9 @@ End Sub
 Private Sub Command_Favourite_Click()
   favourite_add_confirm = False
   Form_Favourite.Show 1
+End Sub
+Private Sub Command_Solution_Click()
+  Form_Solution.Show 1
 End Sub
 Private Sub Command_Add_Favourite_Click()
   favourite_add_save = True
@@ -330,9 +341,9 @@ Private Sub Command_Reset_Click()
   Timer_Get_Time.Enabled = False
   Call init
   Label_Step = "步数: 0"
-  Label_Code = Start_Code
+  Label_Code = start_code
   Label_Time = "用时: 0:00:00"
-  Call Analyse(Start_Code)
+  Call Analyse(start_code)
   Call Output_Graph
 End Sub
 Private Sub init()
@@ -366,6 +377,7 @@ Private Sub init()
   y_split(3) = start_y + gap / 2 + (square_width + gap) * 3
   y_split(4) = start_y + gap / 2 + (square_width + gap) * 4
   y_split(5) = start_y + gap + (square_width + gap) * 5
+  SetWindowPos Me.hwnd, -1, 0, 0, 0, 0, 1 Or 2
 End Sub
 Private Sub Move_Block(m As Integer, dir_x As Integer, dir_y As Integer)
   Dim addr As Integer, style As Integer, X As Integer, Y As Integer
@@ -959,11 +971,11 @@ Private Sub Timer_Layout_Timer()
     change_case = False
     Label_Title.Caption = change_case_title & "(" & change_case_code & ")"
     Call init
-    Start_Code = change_case_code
+    start_code = change_case_code
     Label_Step = "步数: 0"
-    Label_Code = Start_Code
+    Label_Code = start_code
     Label_Time = "用时: 0:00:00"
-    Call Analyse(Start_Code)
+    Call Analyse(start_code)
     Call Output_Graph
   End If
 End Sub

@@ -23,6 +23,8 @@ Public change_case As Boolean, change_case_title As String, change_case_code As 
 Public Favourite_Cases_name() As String, Favourite_Cases_code() As String
 Public favourite_add_name As String, favourite_add_code As String, favourite_add_confirm As Boolean
 Public favourite_add_init_name As String, favourite_add_init_code As String, favourite_add_save As Boolean
+Public wait_file_name As String, wait_cancel As Boolean, waiting As Boolean
+Public start_code As String
 Public Sub FindKeys(hkey As Long, SubKey As String)
   Dim phkRet As Long, lRet As Long, index As Long, lName As Long, lReserved As Long, lClass As Long
   Dim name As String, Class As String

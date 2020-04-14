@@ -96,15 +96,6 @@ Dim click_mouse_x As Integer, click_mouse_y As Integer
 Dim click_x As Integer, click_y As Integer, mouse_button As Integer, print_now As Boolean
 Dim delta_x As Integer, delta_y As Integer, locked_x As Integer, locked_y As Integer
 Dim limit(-1 To 1, -1 To 1) As Boolean
-
-Private Sub Form_DblClick()
-  If mouse_button = 2 Then
-    Call Case_init
-    Call Output_Graph
-    Text_Code = ""
-  End If
-End Sub
-
 Private Sub Form_Load()
   start_x = 120
   start_y = 120
@@ -130,10 +121,20 @@ Private Sub Form_Load()
   Text_Code = favourite_add_init_code
   Call Text_Code_Change
 End Sub
+Private Sub Form_Unload(Cancel As Integer)
+  favourite_add_save = False
+End Sub
+Private Sub Form_DblClick()
+  If mouse_button = 2 Then
+    Call Case_init
+    Call Output_Graph
+    Text_Code = ""
+  End If
+End Sub
 Private Sub Command_Confirm_Click()
-  If Text_Name = "" Then MsgBox "你还没有填名称喔", , "(⊙-⊙)": Exit Sub
+  If Text_Name = "" Then MsgBox "你还没有填名称喔", , "(⊙-⊙)": Text_Name.SetFocus: Exit Sub
   Call Analyse(UCase(Text_Code))
-  If Check = False Then MsgBox "编码出错啦", , "(⊙-⊙)": Exit Sub
+  If Check = False Then MsgBox "编码出错啦", , "(⊙-⊙)": Text_Code.SetFocus: Exit Sub
   favourite_add_confirm = True
   favourite_add_name = Text_Name
   favourite_add_code = Text_Code
@@ -148,18 +149,6 @@ Private Sub Command_Confirm_Click()
   End If
   Unload Form_Favourite_Add
 End Sub
-
-
-Private Sub Form_Unload(Cancel As Integer)
-  favourite_add_save = False
-End Sub
-
-Private Sub Label_Name_Click()
-  Text_Name.SetFocus
-End Sub
-Private Sub Label_Code_Click()
-  Text_Code.SetFocus
-End Sub
 Private Sub Text_Code_Change()
   If print_now = True Then Exit Sub
   Print_Block start_x, start_y, square_width * 4 + gap * 5, square_width * 5 + gap * 6, case_line_width, case_color, case_line_color
@@ -171,13 +160,18 @@ Private Sub Text_Code_Change()
     End If
   End If
 End Sub
+Private Sub Label_Name_Click()
+  Text_Name.SetFocus
+End Sub
+Private Sub Label_Code_Click()
+  Text_Code.SetFocus
+End Sub
 Private Sub Text_Code_KeyPress(KeyAscii As Integer)
   If KeyAscii = 13 Then Call Command_Confirm_Click
 End Sub
 Private Sub Text_Name_KeyPress(KeyAscii As Integer)
   If KeyAscii = 13 Then Text_Code.SetFocus
 End Sub
-
 Private Sub Form_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
   click_mouse_x = X
   click_mouse_y = Y
@@ -197,7 +191,6 @@ Private Sub Form_MouseDown(Button As Integer, Shift As Integer, X As Single, Y A
   print_now = True
   Call Form_MouseMove(Button, Shift, X, Y)
 End Sub
-
 Private Sub Form_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
   Dim print_x As Integer, print_y As Integer, print_width As Integer, print_height As Integer
   If print_now = True Then
@@ -720,7 +713,6 @@ Private Sub Analyse_Code(code As String)
   Next i
 err:
 End Sub
-
 Private Sub Timer_Debug_Timer()
   Dim debug_dat As String
   Dim i As Integer, j As Integer, m As Integer
