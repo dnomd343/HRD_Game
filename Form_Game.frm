@@ -2,7 +2,7 @@ VERSION 5.00
 Begin VB.Form Form_Game 
    AutoRedraw      =   -1  'True
    BorderStyle     =   1  'Fixed Single
-   Caption         =   "HRD Game v1.7 by Dnomd343"
+   Caption         =   "HRD Game v1.8 by Dnomd343"
    ClientHeight    =   7305
    ClientLeft      =   45
    ClientTop       =   690
@@ -14,6 +14,14 @@ Begin VB.Form Form_Game
    ScaleHeight     =   7305
    ScaleWidth      =   7290
    StartUpPosition =   2  '屏幕中心
+   Begin VB.CommandButton Command_Detail 
+      Caption         =   "详细解析"
+      Height          =   495
+      Left            =   5760
+      TabIndex        =   15
+      Top             =   6360
+      Width           =   1335
+   End
    Begin VB.CommandButton Command_Prompt 
       Caption         =   "提示下一步"
       Height          =   495
@@ -318,6 +326,9 @@ Private Sub Command_Favourite_Click()
 End Sub
 Private Sub Command_Solution_Click()
   Form_Solution.Show 1
+End Sub
+Private Sub Command_Detail_Click()
+  Form_Detail.Show 1
 End Sub
 Private Sub Command_Add_Favourite_Click()
   favourite_add_save = True
